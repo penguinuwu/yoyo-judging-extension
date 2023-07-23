@@ -1,0 +1,30 @@
+{
+	"manifest_version": 3,
+	"name": "Yo-Yo Clicker",
+	"version": "0.1",
+
+	"description": "Judge yo-yo routines on Youtube!",
+	"browser_specific_settings": {
+		"gecko": { "id": "addon@example.com" }
+	},
+	"icons": { "64": "popup/paw-64.png" },
+
+	"permissions": ["activeTab", "scripting", "storage"],
+	"action": { "default_popup": "popup/index.html" },
+	"content_scripts": [
+		{
+			"js": [
+				"content_scripts/injecter.js",
+				"content_scripts/keybinding_listener.js",
+				"content_scripts/submission_handler.js"
+			],
+			"matches": ["https://www.youtube.com/watch*"]
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": ["injected_scripts/*.js"],
+			"matches": ["<all_urls>"]
+		}
+	]
+}

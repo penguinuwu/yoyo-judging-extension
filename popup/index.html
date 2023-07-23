@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<link href="./style.css" rel="stylesheet" />
+	</head>
+	<body>
+		<p>Edit your clicking keys!</p>
+
+		<div>
+			<label for="pos-key">Positive (+1): </label>
+			<input
+				id="pos-key"
+				name="pos-key"
+				type="text"
+				value="1"
+				minlength="1"
+				maxlength="1"
+				size="2"
+				required
+			/>
+			<span class="validity"></span>
+		</div>
+
+		<div>
+			<label for="neg-key">Negative (-1): </label>
+			<input
+				id="neg-key"
+				name="neg-key"
+				type="text"
+				value="0"
+				minlength="1"
+				maxlength="1"
+				size="2"
+				required
+			/>
+			<span class="validity"></span>
+		</div>
+
+		<script type="module" src="./script.js"></script>
+	</body>
+</html>
