@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Yo-Yo Clicker",
-	"version": "0.1",
+	"version": "0.2",
 
 	"description": "Judge yo-yo routines on Youtube!",
 	"browser_specific_settings": {
@@ -9,7 +9,7 @@
 	},
 	"icons": { "64": "popup/paw-64.png" },
 
-	"permissions": ["activeTab", "scripting", "storage"],
+	"permissions": ["activeTab", "scripting", "storage", "webNavigation"],
 	"action": { "default_popup": "popup/index.html" },
 	"content_scripts": [
 		{
@@ -18,13 +18,21 @@
 				"content_scripts/keybinding_listener.js",
 				"content_scripts/submission_handler.js"
 			],
-			"matches": ["https://www.youtube.com/watch*"]
+			"matches": ["*://*.youtube.com/*"]
 		}
 	],
+	"background": {
+		"service_worker": "service_workers/worker.js",
+		"type": "module"
+	},
+	"host_permissions": ["*://*.youtube.com/*"],
 	"web_accessible_resources": [
 		{
-			"resources": ["injected_scripts/*.js"],
-			"matches": ["<all_urls>"]
+			"resources": [
+				"injected_scripts/ui-style.css",
+				"injected_scripts/ui.js"
+			],
+			"matches": ["*://*.youtube.com/*"]
 		}
 	]
 }

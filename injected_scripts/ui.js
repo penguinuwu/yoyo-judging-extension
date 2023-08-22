@@ -28,41 +28,10 @@ function waitForElm(selector) {
 }
 
 /**
- * handles scoring key inputs
- * @param {Element} playerNode
- * @param {Element} scoresNode
- * @param {*} score
- * @param {string} posKey
- * @param {string} negKey
- * @returns {function}
+ * show scoring timeline ui
+ * @param {Element} startButtonNode
  */
-function handleScoringKeydown(playerNode, scoresNode, score, posKey, negKey) {
-	return (event) => {
-		if (event.key === posKey || event.key === negKey) {
-			const time = playerNode.getCurrentTime();
-
-			// disable default key actions
-			event.preventDefault();
-			event.stopPropagation();
-			event.stopImmediatePropagation();
-
-			const click = event.key === posKey ? +1 : -1;
-			if (score.hasOwnProperty(`${time}`)) {
-				score[`${time}`] += click;
-			} else {
-				score[`${time}`] = click;
-			}
-
-			updateScores(scoresNode, score);
-		}
-	};
-}
-
-/**
- *
- * @param {*} startButtonNode
- */
-function setScoring(startButtonNode) {
+function showScoring(startButtonNode) {
 	// TODO: did i make a race condition :3c
 	startButtonNode.disabled = true;
 	startButtonNode.textContent = "Loading...";
@@ -70,12 +39,12 @@ function setScoring(startButtonNode) {
 }
 
 /**
- *
- * @param {*} startButtonNode
- * @param {*} scoreboardNode
- * @param {*} clickerControllers
+ * hide scoring timeline ui
+ * @param {Element} startButtonNode
+ * @param {Element} uiNode
+ * @param {Element} clickerControllers
  */
-function clearScoring(startButtonNode, scoreboardNode, clickerControllers) {
+function hideScoring(startButtonNode, uiNode, clickerControllers) {
 	// TODO: this is probably fine riiiiiiiight.........
 	startButtonNode.disabled = true;
 	startButtonNode.textContent = "Loading...";
@@ -85,7 +54,7 @@ function clearScoring(startButtonNode, scoreboardNode, clickerControllers) {
 	if (clickerControllers.length > 0) clickerControllers.shift().abort();
 
 	// remove scoring ui
-	scoreboardNode.remove("clicker-browser-extension-scoreboard");
+	uiNode.remove("clicker-browser-extension-scoreboard");
 
 	// TODO: this is probably fine riiiiiiiight......... pt2
 	startButtonNode.textContent = "Score";
@@ -93,17 +62,117 @@ function clearScoring(startButtonNode, scoreboardNode, clickerControllers) {
 }
 
 /**
- * update score ui
- * @param {Element} scoresNode
- * @param {object} score
+ * reset all clicks
+ * @param {Array<Element>} scoreTableNodes
+ * @param {{Date: number}} mapTimesToScores
  */
-function updateScores(scoresNode, score) {
-	let number = 0;
-	Object.values(score).forEach((value) => {
-		number += parseInt(value);
-	});
-	scoresNode.textContent = number;
-	console.log(score);
+function resetScoring(scoreTableNodes, mapTimesToScores) {
+	// clear table data
+	// https://stackoverflow.com/a/65413839
+	scoreTableNodes.forEach((tableBody) => tableBody.replaceChildren());
+
+	// clear positive stripes on timeline
+	Array.from(
+		document.getElementsByClassName("clicker-browser-extension-stripe-pos")
+	).forEach((stripe) => stripe.remove());
+
+	// clear negative stripes on timeline
+	Array.from(
+		document.getElementsByClassName("clicker-browser-extension-stripe-neg")
+	).forEach((stripe) => stripe.remove());
+
+	// clear clicks table
+	Object.getOwnPropertyNames(mapTimesToScores).forEach(
+		(clickTime) => delete mapTimesToScores[clickTime]
+	);
+}
+
+/**
+ * record click in scores object and update ui
+ * @param {Element} videoPlayerNode
+ * @param {Element} timeline
+ * @param {Array<Element>} tables
+ * @param {{Date: number}} scoreMap
+ * @param {number} change
+ */
+function parseClick(videoPlayerNode, timeline, tables, scoreMap, change) {
+	const clickTime = videoPlayerNode.getCurrentTime();
+	const videoDuration = videoPlayerNode.getDuration();
+
+	console.log(`parseClick: ${change} at ${clickTime}`);
+
+	// prevent time from hitting the very end of video
+	if (clickTime >= videoDuration) {
+		clickTime = videoDuration - 0.000001;
+	}
+
+	// calculate times
+	const timePercentage = (clickTime / videoDuration) * 100;
+	const blockIndex = Math.floor(timePercentage / 10);
+	console.log(`timePercentage: ${timePercentage}, blockIndex: ${blockIndex}`);
+
+	// update time-to-score mapping
+	if (scoreMap.hasOwnProperty(`${clickTime}`)) {
+		scoreMap[`${clickTime}`] += change;
+	} else {
+		scoreMap[`${clickTime}`] = change;
+	}
+
+	const idHash = `${clickTime}-${change}-${Math.random()}`;
+
+	// update ui stripe
+	const stripe = document.createElement("span");
+	stripe.id = `stripe-${idHash}`;
+	stripe.style.left = `${timePercentage}%`;
+	if (change > 0) {
+		stripe.className = "clicker-browser-extension-stripe-pos";
+	} else {
+		stripe.className = "clicker-browser-extension-stripe-neg";
+	}
+	timeline.appendChild(stripe);
+
+	// populate table data
+	const timeData = document.createElement("td");
+	timeData.textContent = clickTime;
+	timeData.onclick = () => videoPlayerNode.seekTo(clickTime, true);
+
+	const scoreData = document.createElement("td");
+	scoreData.textContent = `${change > 0 ? "+" : "-"}${change}`;
+
+	const deleteData = document.createElement("td");
+	deleteData.textContent = "🗑️";
+	deleteData.onclick = () => {
+		console.log(`delete ${idHash}`);
+
+		// delete ui
+		document.getElementById(`stripe-${idHash}`).remove();
+		document.getElementById(`table-${idHash}`).remove();
+
+		// delete click
+		if (scoreMap.hasOwnProperty(`${clickTime}`)) {
+			scoreMap[`${clickTime}`] -= change;
+		}
+	};
+
+	// update ui table
+	const tableRow = document.createElement("tr");
+	tableRow.id = `table-${idHash}`;
+	tableRow.appendChild(timeData);
+	tableRow.appendChild(scoreData);
+	tableRow.appendChild(deleteData);
+	tables[blockIndex].appendChild(tableRow);
+
+	// sort table https://stackoverflow.com/a/49041392
+	// iterate through tr
+	Array.from(tables[blockIndex].children)
+		.sort(
+			(tr1, tr2) =>
+				// sort only considering time data
+				parseFloat(tr1.children[0].textContent) >
+				parseFloat(tr2.children[0].textContent)
+		)
+		// reappend tr back into table in order (does not duplicate)
+		.forEach((tr) => tables[blockIndex].appendChild(tr));
 }
 
 /**
@@ -112,12 +181,13 @@ function updateScores(scoresNode, score) {
  * https://stackoverflow.com/a/72657456
  */
 (async () => {
-	// TODO: figure out how to import instead of pasting code lol
-	// https://stackoverflow.com/a/53033388 maybe
-	// const { waitForElm } = await import(thing);
+	// TODO: figure out how to import instead of everything in 1 file lol
 
 	// get video player
 	const videoPlayerNode = await waitForElm("#movie_player");
+	const videoDuration = videoPlayerNode.getDuration();
+
+	console.log(videoDuration);
 
 	// cannot just use id because chrome has multiple #owner ids 💀
 	// div containing the Subscribe button
@@ -126,68 +196,131 @@ function updateScores(scoresNode, score) {
 	const belowVideoNode = await waitForElm("#primary-inner > #below");
 
 	// #region create scoring ui
-	const score = {};
+	// maps datetime to click integer
+	const mapTimesToScores = {};
 
+	// contains scoring timeline ui
+	const uiNode = document.createElement("div");
+	uiNode.id = "clicker-browser-extension-ui";
+
+	// contains score reset and submit buttons
 	const scoreboardNode = document.createElement("div");
 	scoreboardNode.id = "clicker-browser-extension-scoreboard";
 
-	const scoresNode = document.createElement("button");
-	scoresNode.disabled = true;
-	scoresNode.textContent = 0;
+	// create timeline
+	const timelineNode = document.createElement("div");
+	timelineNode.id = "clicker-browser-extension-timeline";
+
+	// split the timeline into 10 blocks
+	const scoreTableNodes = [];
+	for (let i = 0; i <= 90; i += 10) {
+		const block = document.createElement("div");
+		block.className = "clicker-browser-extension-block";
+		block.style.left = `${i}%`;
+		timelineNode.appendChild(block);
+
+		const list = document.createElement("div");
+		list.className = "clicker-browser-extension-list";
+		block.appendChild(list);
+
+		// make table
+		const table = document.createElement("table");
+		list.appendChild(table);
+		const header = document.createElement("thead");
+		table.appendChild(header);
+		const headerRow = document.createElement("tr");
+		header.appendChild(headerRow);
+
+		// make table header rows
+		const timestamp = document.createElement("th");
+		timestamp.textContent = "Time";
+		headerRow.appendChild(timestamp);
+		const click = document.createElement("th");
+		click.textContent = "Click";
+		headerRow.appendChild(click);
+		const deletion = document.createElement("th");
+		deletion.textContent = "Delete";
+		headerRow.appendChild(deletion);
+
+		// index the tables to display clicks
+		const body = document.createElement("tbody");
+		table.appendChild(body);
+		scoreTableNodes.push(body);
+
+		// skip tick for the last 10% because it will be offscreen
+		if (i === 90) continue;
+
+		// draw tick
+		const tick = document.createElement("span");
+		tick.className = "clicker-browser-extension-tick";
+		tick.style.left = `${i + 10 - 0.1}%`;
+		timelineNode.appendChild(tick);
+	}
 
 	const positiveNode = document.createElement("button");
 	positiveNode.textContent = "+1";
 	positiveNode.onclick = () => {
-		const time = videoPlayerNode.getCurrentTime();
-		if (score.hasOwnProperty(`${time}`)) {
-			score[`${time}`] += 1;
-		} else {
-			score[`${time}`] = +1;
-		}
-		console.log(`+1 at ${time}`);
-		updateScores(scoresNode, score);
+		console.log(`positiveNode.onclick: +1`);
+		parseClick(
+			videoPlayerNode,
+			timelineNode,
+			scoreTableNodes,
+			mapTimesToScores,
+			+1
+		);
 	};
 	const negativeNode = document.createElement("button");
 	negativeNode.textContent = "-1";
 	negativeNode.onclick = () => {
-		const time = videoPlayerNode.getCurrentTime();
-		if (score.hasOwnProperty(`${time}`)) {
-			score[`${time}`] -= 1;
-		} else {
-			score[`${time}`] = -1;
-		}
-		console.log(`-1 at ${time}`);
-		updateScores(scoresNode, score);
+		console.log(`negativeNode.onclick: -1`);
+		parseClick(
+			videoPlayerNode,
+			timelineNode,
+			scoreTableNodes,
+			mapTimesToScores,
+			-1
+		);
 	};
+
+	const utilsNode = document.createElement("div");
+	utilsNode.id = "clicker-browser-extension-utils";
 
 	const submitNode = document.createElement("button");
 	submitNode.textContent = "Submit";
 	submitNode.title = "Submit current clicks to the database";
 	submitNode.onclick = () => {
 		console.log("submit");
-		window.postMessage(
-			{ type: "FROM_PAGE", text: "SET_SCORE", score: score },
-			"*"
-		);
+		if (confirm("Submit scores to online database?")) {
+			window.postMessage(
+				{
+					type: "FROM_PAGE",
+					text: "SET_SCORE",
+					score: mapTimesToScores,
+				},
+				"*"
+			);
+		}
 	};
-
 	const resetNode = document.createElement("button");
 	resetNode.textContent = "Reset";
 	resetNode.title = "Reset all current clicks";
 	resetNode.onclick = () => {
 		console.log("reset");
-		for (const key in score) {
-			delete score[key];
+		if (confirm("Reset all clicks?")) {
+			resetScoring(scoreTableNodes, mapTimesToScores);
 		}
-		updateScores(scoresNode, score);
 	};
 
 	// append to ui
 	scoreboardNode.appendChild(positiveNode);
+	scoreboardNode.appendChild(timelineNode);
 	scoreboardNode.appendChild(negativeNode);
-	scoreboardNode.appendChild(scoresNode);
-	scoreboardNode.appendChild(submitNode);
-	scoreboardNode.appendChild(resetNode);
+
+	utilsNode.appendChild(submitNode);
+	utilsNode.appendChild(resetNode);
+
+	uiNode.appendChild(scoreboardNode);
+	uiNode.appendChild(utilsNode);
 	// #endregion
 
 	// #region create start/stop scoring button
@@ -201,9 +334,9 @@ function updateScores(scoresNode, score) {
 		console.log(event);
 		// TODO: .textContent is probably fine lolllllllll
 		if (startButtonNode.textContent === "Score") {
-			setScoring(startButtonNode);
+			showScoring(startButtonNode);
 		} else if (startButtonNode.textContent === "Stop") {
-			clearScoring(startButtonNode, scoreboardNode, clickerControllers);
+			hideScoring(startButtonNode, uiNode, clickerControllers);
 		}
 	};
 	// #endregion
@@ -225,7 +358,7 @@ function updateScores(scoresNode, score) {
 			negativeNode.title = negativeKey;
 
 			// clear current key bindings if any exist
-			clearScoring(startButtonNode, scoreboardNode, clickerControllers);
+			hideScoring(startButtonNode, uiNode, clickerControllers);
 
 			// add new abort controller to clear current key bindings
 			const newClickerController = new AbortController();
@@ -234,25 +367,44 @@ function updateScores(scoresNode, score) {
 			// listen for clicks
 			document.addEventListener(
 				"keydown",
-				handleScoringKeydown(
-					videoPlayerNode,
-					scoresNode,
-					score,
-					positiveKey,
-					negativeKey
-				),
+				(event) => {
+					if (
+						event.key === positiveKey ||
+						event.key === negativeKey
+					) {
+						// disable default key actions
+						event.preventDefault();
+						event.stopPropagation();
+						event.stopImmediatePropagation();
+
+						const click = event.key === positiveKey ? +1 : -1;
+						parseClick(
+							videoPlayerNode,
+							timelineNode,
+							scoreTableNodes,
+							mapTimesToScores,
+							click
+						);
+					}
+				},
 				// capture prioritizes this event listener
 				// signal aborts the event listener
 				{ capture: true, signal: newClickerController.signal }
 			);
 
-			belowVideoNode.prepend(scoreboardNode);
+			belowVideoNode.prepend(uiNode);
 
 			// TODO: did i make a race condition :3c part2
 			startButtonNode.textContent = "Stop";
 			startButtonNode.disabled = false;
 		}
 	);
+
+	// listen for video changes
+	document.addEventListener("clicker-browser-extension:video-change", () => {
+		console.log("video change reset");
+		resetScoring(scoreTableNodes, mapTimesToScores);
+	});
 
 	// add scoring button
 	channelInfoNode.appendChild(startButtonNode);
