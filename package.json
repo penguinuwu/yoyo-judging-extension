@@ -5,7 +5,10 @@
   "description": "An extension to add UI to Youtube for judging YoYo performances.",
   "author": "<evan@good-meowning.com>",
   "scripts": {
-    "dev": "plasmo dev",
+    "dev-c": "plasmo dev --target=chrome-mv3",
+    "dev-f": "plasmo dev --target=firefox-mv2",
+    "run-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium'",
+    "run-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop'",
     "build": "plasmo build",
     "package": "plasmo package"
   },
@@ -17,9 +20,11 @@
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.1.0",
     "@types/chrome": "0.0.245",
+    "@types/firefox": "0.0.32",
     "@types/node": "20.5.9",
     "prettier": "3.0.3",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "web-ext": "^7.8.0"
   },
   "manifest": {
     "host_permissions": [
