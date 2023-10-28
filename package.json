@@ -5,8 +5,8 @@
   "description": "An extension to add UI to Youtube for judging YoYo performances.",
   "author": "<evan@good-meowning.com>",
   "scripts": {
-    "dev-c": "plasmo dev --target=chrome-mv3",
-    "dev-f": "plasmo dev --target=firefox-mv2",
+    "dev-c": "plasmo dev --target=chrome-mv3 --verbose",
+    "dev-f": "plasmo dev --target=firefox-mv2 --verbose",
     "run-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium'",
     "run-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop'",
     "build": "plasmo build",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "plasmo": "0.83.0",
-    "svelte": "4.2.1",
+    "svelte": "4.2.0",
     "svelte-preprocess": "5.0.4"
   },
   "devDependencies": {
