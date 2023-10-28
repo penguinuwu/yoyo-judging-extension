@@ -13,6 +13,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@plasmohq/storage": "^1.8.1",
     "plasmo": "0.83.0",
     "svelte": "4.2.0",
     "svelte-preprocess": "5.0.4"
@@ -27,6 +28,11 @@
     "web-ext": "^7.8.0"
   },
   "manifest": {
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "your-id@example.com"
+      }
+    },
     "host_permissions": [
       "https://*/*"
     ],
