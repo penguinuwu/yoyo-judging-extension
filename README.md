@@ -1,12 +1,25 @@
 # Yo-Yo Judge Browser Extension
 
 ## How to setup
-1. Install [`Node.js`](https://nodejs.org/en/download) 16.0.0 or higher (includes `npm` (8.0.0 or higher))
-2. Install [`web-ext`]() using `npm`
-   - `npm install --global web-ext`
+```bash
+pnpm install --ignore-scripts=false
+# note: the package `sharp` can't install with `--ignore-scripts`
+```
 
 ## How to run
-Run the extension using `web-ext`
+Chrome:
 ```bash
-$ web-ext run -t firefox-desktop -t chromium
+pnpm dev-c
+./run.sh
+# note: `pnpm run-c` somehow doesn't work 💀
 ```
+
+Firefox:
+```bash
+pnpm dev-f
+pnpm run-f
+```
+
+---
+
+This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
