@@ -4,22 +4,23 @@
  * @param {string} selector
  * @returns Promise<Element>
  */
-export function waitForElm(selector: string): Promise<Element> {
+export function waitForElm(selector: string) {
+  // TODO: typescript this 💀
   return new Promise((resolve) => {
-    if (document.querySelector(selector)) {
-      return resolve(document.querySelector(selector));
-    }
+    const element = document.querySelector(selector)
+    if (element) return resolve(element)
 
     const observer = new MutationObserver((_mutations) => {
-      if (document.querySelector(selector)) {
-        resolve(document.querySelector(selector));
-        observer.disconnect();
+      const element = document.querySelector(selector)
+      if (element) {
+        resolve(element)
+        observer.disconnect()
       }
-    });
+    })
 
     observer.observe(document.body, {
       childList: true,
       subtree: true
-    });
-  });
+    })
+  })
 }

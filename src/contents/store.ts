@@ -1,3 +1,7 @@
-import { writable } from "svelte/store";
+enum StorageKeys {
+  Activated = "ACTIVATED",
+  PositiveKey = "POSITIVE_KEY",
+  NegativeKey = "NEGATIVE_KEY"
+}
 
-export const isActivated = writable(false);
+export { StorageKeys }

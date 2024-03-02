@@ -1,7 +1,13 @@
-#clicker-browser-extension-scoreboard.hidden-content {
+#clicker-browser-extension-ui.hidden-content {
   /* completely remove scoring ui */
   display: none;
   visibility: hidden;
+}
+
+#clicker-browser-extension-ui {
+  /* required to expand ui div */
+  display: flex;
+  flex-grow: 1;
 }
 
 #clicker-browser-extension-scoreboard {
