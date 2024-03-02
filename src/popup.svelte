@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
+  import { StorageKeys } from "~contents/store";
 
   const storage = new Storage();
 
@@ -10,17 +11,19 @@
 
   // watch for key binding changes
   storage.watch({
-    positiveKey: (c) => {
+    [StorageKeys.PositiveKey]: (c) => {
       console.debug(`positiveKey: ${c.newValue}`);
       positiveKey = c.newValue;
+      validateKeys();
     },
-    negativeKey: (c) => {
+    [StorageKeys.NegativeKey]: (c) => {
       console.debug(`negativeKey: ${c.newValue}`);
       negativeKey = c.newValue;
+      validateKeys();
     }
   });
 
-  const updateKeys = () => {
+  const validateKeys = () => {
     // check if keys are not unique
     if (positiveKey === negativeKey) {
       console.debug(`duplicate key binds "${positiveKey}", "${negativeKey}"`);
@@ -29,25 +32,30 @@
     } else {
       // check if keys are valid, and reset custom validity
       negativeNode.setCustomValidity(
-        /^.{1}$/.test(negativeNode.value) ? "" : "Invalid key bind!"
+        /^.{1}$/.test(negativeKey) ? "" : "Invalid key bind!"
       );
       positiveNode.setCustomValidity(
-        /^.{1}$/.test(positiveNode.value) ? "" : "Invalid key bind!"
+        /^.{1}$/.test(positiveKey) ? "" : "Invalid key bind!"
       );
       console.debug(
         `validity "${positiveNode.checkValidity()}", "${negativeNode.checkValidity()}"`
       );
-
-      // save keys if valid
-      if (positiveNode.checkValidity() && negativeNode.checkValidity()) {
-        console.debug(`store keys "${positiveKey}", "${negativeKey}"`);
-        storage.set("positiveKey", positiveKey);
-        storage.set("negativeKey", negativeKey);
-      }
     }
   };
 
-  // get default keys iife
+  const updateKeys = () => {
+    validateKeys();
+
+    // save keys if valid
+    if (positiveNode.checkValidity() && negativeNode.checkValidity()) {
+      console.debug(`store keys "${positiveKey}", "${negativeKey}"`);
+      storage.set(StorageKeys.PositiveKey, positiveKey);
+      storage.set(StorageKeys.NegativeKey, negativeKey);
+    }
+  };
+
+  // get default keys, using iife because no top-level await 😔
+  // https://github.com/sveltejs/svelte/issues/5501
   (async () => {
     positiveKey = await storage.get("positiveKey");
     negativeKey = await storage.get("negativeKey");
@@ -60,6 +68,8 @@
       negativeKey = "0";
       updateKeys();
     }
+
+    validateKeys();
   })();
 </script>
 

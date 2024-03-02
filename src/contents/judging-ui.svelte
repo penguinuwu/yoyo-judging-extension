@@ -10,7 +10,7 @@
   // https://discord.com/channels/946290204443025438/1165938510432305193/
   // solution:
   // https://docs.plasmo.com/framework/content-scripts-ui/styling#import-stylesheet
-  import styleText from "data-text:./style.css";
+  import styleText from "data-text:~contents/style.css";
 
   export const getStyle: PlasmoGetStyle = () => {
     // https://github.com/PlasmoHQ/plasmo/issues/161
@@ -23,11 +23,12 @@
   export const config: PlasmoCSConfig = {
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns
     // https://developer.chrome.com/docs/extensions/mv3/match_patterns/
-    matches: ["*://*.youtube.com/*"]
+    matches: ["https://*.youtube.com/*"],
+    run_at: "document_start"
   };
 
   // https://docs.plasmo.com/framework/content-scripts-ui/life-cycle#inline
-  export const getInlineAnchor: PlasmoGetInlineAnchor = () => {
+  export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
     return document.querySelector("#primary-inner > #below");
   };
 
@@ -41,102 +42,44 @@
 
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
+  import { StorageKeys } from "~contents/store";
+  import JudgingScoreboard from "~judging-scoreboard.svelte";
 
-  import { isActivated } from "./store";
+  console.log("hiiiiiii");
 
-  // activate/deactivate ui
-  let activated: boolean;
-  isActivated.subscribe((value) => (activated = value));
+  const player: any = document.querySelector("#movie_player video");
+  console.log(player);
+  console.log(player.duration);
+  console.log(player.currentTime);
 
-  // browser storage
   const storage = new Storage();
 
-  // key bindings
-  let positiveKey: string;
-  let negativeKey: string;
+  // activate/deactivate ui
+  let activated = false;
 
-  // get default keys iife
+  // set activation iife
   (async () => {
-    positiveKey = await storage.get("positiveKey");
-    negativeKey = await storage.get("negativeKey");
-    console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
+    activated = await storage.get(StorageKeys.Activated);
+    console.debug(`ui get activate ${activated}`);
 
-    // some key is missing from storage, reset to default
-    if (!positiveKey || !negativeKey) {
-      console.debug("reset keys");
-      positiveKey = "1";
-      negativeKey = "0";
-      storage.set("positiveKey", positiveKey);
-      storage.set("negativeKey", negativeKey);
+    // set default value
+    if (typeof activated !== "boolean") {
+      activated = false;
+      storage.set(StorageKeys.Activated, false);
     }
+
+    storage.watch({
+      [StorageKeys.Activated]: (c) => {
+        console.debug(`ui activated: ${c.newValue}`);
+        activated = c.newValue;
+      }
+    });
   })();
-
-  // watch for key binding changes
-  storage.watch({
-    positiveKey: (c) => {
-      console.debug(`positiveKey: ${c.newValue}`);
-      positiveKey = c.newValue;
-    },
-    negativeKey: (c) => {
-      console.debug(`negativeKey: ${c.newValue}`);
-      negativeKey = c.newValue;
-    }
-  });
-
-  // listen for clicks
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      // do nothing if scoring has not begun
-      if (!activated) {
-        return;
-      }
-
-      if (event.key === positiveKey || event.key === negativeKey) {
-        // disable default key actions
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        const click = event.key === positiveKey ? +1 : -1;
-        console.debug(`click ${click}`);
-      }
-    },
-    // capture prioritizes this event listener it's rly kool
-    // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#capture
-    { capture: true }
-  );
 </script>
 
 <div
-  id="clicker-browser-extension-scoreboard"
+  id="clicker-browser-extension-ui"
   class={activated ? "" : "hidden-content"}
 >
-  <button>+1</button>
-  <div id="clicker-browser-extension-timeline">
-    {#each Array(10) as _, i}
-      <div class="clicker-browser-extension-block" style="left: {i * 10}%">
-        <div class="clicker-browser-extension-list">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Click</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody />
-          </table>
-        </div>
-      </div>
-
-      {#if i !== 9}
-        <span
-          class="clicker-browser-extension-tick"
-          style="left: {(i + 1) * 10 - 0.1}%"
-        />
-      {/if}
-    {/each}
-  </div>
-  <button>-1</button>
+  <JudgingScoreboard {activated} />
 </div>
