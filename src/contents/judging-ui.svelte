@@ -45,13 +45,6 @@
   import { StorageKeys } from "~contents/store";
   import JudgingScoreboard from "~judging-scoreboard.svelte";
 
-  console.log("hiiiiiii");
-
-  const player: any = document.querySelector("#movie_player video");
-  console.log(player);
-  console.log(player.duration);
-  console.log(player.currentTime);
-
   const storage = new Storage();
 
   // activate/deactivate ui

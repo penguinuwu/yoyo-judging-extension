@@ -1,15 +1,6 @@
 <script lang="ts">
-  import { waitForElm } from "./contents/utils";
-
-  let videoPlayerNode: HTMLMediaElement;
-  let videoDuration: number;
-  (async () => {
-    // TODO: typescript this 💀
-    videoPlayerNode = (await waitForElm(
-      "#movie_player video"
-    )) as HTMLMediaElement;
-    videoDuration = videoPlayerNode.duration;
-  })();
+  export let videoPlayerNode: HTMLMediaElement;
+  export let videoDuration: number;
 
   // initialize array of 10 objects
   let scoreMap: { [timestamp: string]: number }[] = Array(10)
@@ -18,7 +9,23 @@
       return {};
     });
 
-  export const parseClick = (click: number) => {
+  /**
+   * delete all mappings of timestamp to click
+   */
+  export function resetScoreMap() {
+    for (let index = 0; index < 10; index++) scoreMap[index] = {};
+  }
+
+  /**
+   * add click to score mapping at current time
+   * @param click
+   */
+  export function parseClick(click: number) {
+    if (!videoPlayerNode || !videoDuration) {
+      console.debug(`video not ready to click!!`);
+      return;
+    }
+
     let clickTime = videoPlayerNode.currentTime;
     console.debug(`parseClick: ${click} at ${clickTime}`);
 
@@ -47,17 +54,27 @@
         obj[key] = scoreMap[blockIndex][key];
         return obj;
       }, {});
+  }
 
-    // //
-    // scoreMap = scoreMap;
-  };
+  /**
+   * delete click from score mapping at given time
+   * @param clickTime
+   * @param click
+   */
+  function deleteClick(clickTime: string, click: number) {
+    if (!videoPlayerNode) {
+      console.debug(`video not ready to unclick!!`);
+      return;
+    }
 
-  const deleteClick = (clickTime: string, click: number) => {
+    console.debug(`deleting click ${click} at ${clickTime}`);
+
+    // calculate score map index to locate the click bucket
     const timePercentage = (parseFloat(clickTime) / videoDuration) * 100;
     const blockIndex = Math.floor(timePercentage / scoreMap.length);
     scoreMap[blockIndex][clickTime] -= click;
-    scoreMap = scoreMap;
-  };
+    // scoreMap = scoreMap;
+  }
 </script>
 
 <div id="clicker-browser-extension-timeline">
