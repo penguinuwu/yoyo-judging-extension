@@ -43,7 +43,7 @@
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
   import { StorageKeys } from "~contents/store";
-  import JudgingScoreboard from "~judging-scoreboard.svelte";
+  import Scoreboard from "~injected-ui/scoreboard.svelte";
 
   const storage = new Storage();
 
@@ -74,5 +74,5 @@
   id="clicker-browser-extension-ui"
   class={activated ? "" : "hidden-content"}
 >
-  <JudgingScoreboard {activated} />
+  <Scoreboard {activated} />
 </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
   import { StorageKeys } from "~contents/store";
-  import TimelineUi from "~judging-timeline.svelte";
+  import TimelineUi from "~injected-ui/timeline.svelte";
 
   // activate/deactivate ui
   export let activated: boolean;
