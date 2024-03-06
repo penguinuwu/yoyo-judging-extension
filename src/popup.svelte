@@ -4,10 +4,10 @@
 
   const storage = new Storage();
 
-  let positiveNode: HTMLInputElement;
-  let negativeNode: HTMLInputElement;
-  let positiveKey: string;
-  let negativeKey: string;
+  let positiveNode: HTMLInputElement = undefined;
+  let negativeNode: HTMLInputElement = undefined;
+  let positiveKey: string = undefined;
+  let negativeKey: string = undefined;
 
   // watch for key binding changes
   storage.watch({
@@ -23,7 +23,10 @@
     }
   });
 
-  const validateKeys = () => {
+  /**
+   * validate keys and show results on ui
+   */
+  function validateKeys() {
     // check if keys are not unique
     if (positiveKey === negativeKey) {
       console.debug(`duplicate key binds "${positiveKey}", "${negativeKey}"`);
@@ -41,9 +44,12 @@
         `validity "${positiveNode.checkValidity()}", "${negativeNode.checkValidity()}"`
       );
     }
-  };
+  }
 
-  const updateKeys = () => {
+  /**
+   * write keys to storage if keys are valid
+   */
+  function updateKeys() {
     validateKeys();
 
     // save keys if valid
@@ -52,13 +58,15 @@
       storage.set(StorageKeys.PositiveKey, positiveKey);
       storage.set(StorageKeys.NegativeKey, negativeKey);
     }
-  };
+  }
 
-  // get default keys, using iife because no top-level await 😔
-  // https://github.com/sveltejs/svelte/issues/5501
-  (async () => {
-    positiveKey = await storage.get("positiveKey");
-    negativeKey = await storage.get("negativeKey");
+  /**
+   * get default keys, using iife because no top-level await 😔
+   * https://github.com/sveltejs/svelte/issues/5501
+   */
+  (async function () {
+    positiveKey = await storage.get(StorageKeys.PositiveKey);
+    negativeKey = await storage.get(StorageKeys.NegativeKey);
     console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
 
     // some key is missing from storage, reset to default
