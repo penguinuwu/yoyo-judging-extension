@@ -32,6 +32,13 @@
 
   let activated: boolean;
 
+  storage.watch({
+    [StorageKeys.Activated]: (c) => {
+      console.debug(`button activated: ${c.newValue}`);
+      activated = c.newValue;
+    }
+  });
+
   // toggle activation boolean
   const toggle = () => {
     console.debug(`clicking button ${activated}`);
@@ -47,13 +54,6 @@
       activated = false;
       storage.set(StorageKeys.Activated, false);
     }
-
-    storage.watch({
-      [StorageKeys.Activated]: (c) => {
-        console.debug(`button activated: ${c.newValue}`);
-        activated = c.newValue;
-      }
-    });
   })();
 </script>
 
