@@ -3,14 +3,32 @@
   import { StorageKeys } from "~contents/store";
   import TimelineUi from "~injected-ui/timeline.svelte";
 
+  // browser storage
+  const storage = new Storage();
+
   // activate/deactivate ui
-  export let activated: boolean;
+  let activated: boolean;
+  storage.watch({
+    [StorageKeys.Activated]: (c) => {
+      console.debug(`ui activated: ${c.newValue}`);
+      activated = c.newValue;
+    }
+  });
+  // set activation iife
+  (async () => {
+    activated = await storage.get(StorageKeys.Activated);
+    console.debug(`ui get activate ${activated}`);
+
+    // set default value
+    if (typeof activated !== "boolean") {
+      activated = false;
+      storage.set(StorageKeys.Activated, false);
+    }
+  })();
 
   let timelineUi: TimelineUi;
   let videoPlayerNode: HTMLMediaElement;
-
-  // browser storage
-  const storage = new Storage();
+  let currentVideoSrc: string;
 
   // key bindings
   let positiveKey: string;
@@ -107,13 +125,21 @@
         mutation.target.nodeType === Node.ELEMENT_NODE &&
         "tagName" in mutation.target &&
         mutation.target.tagName === "VIDEO" &&
+        "src" in mutation.target &&
         mutation.attributeName === "src"
       ) {
-        // TODO: src value change multiple times idk why 💀
-        console.debug("video change");
-        // reset scores if exists
-        if (videoPlayerNode && timelineUi) timelineUi.resetScoreMap();
-        resetVideo();
+        console.debug(`video change: ${mutation.target.src}`);
+
+        // src value change multiple times idk why 💀
+        // TODO: make permanent fix
+        if (currentVideoSrc !== mutation.target.src) {
+          currentVideoSrc = `${mutation.target.src}`;
+          console.debug("reset video");
+
+          // reset scores if exists
+          if (videoPlayerNode && timelineUi) timelineUi.resetScoreMap();
+          resetVideo();
+        }
       }
     }
   })
@@ -128,18 +154,36 @@
   resetVideo();
 </script>
 
-<div id="clicker-browser-extension-scoreboard">
-  <button title={positiveKey} on:click={() => timelineUi.parseClick(+1)}>
-    +1
-  </button>
+<div
+  id="clicker-browser-extension-panel"
+  class={activated ? "" : "hidden-content"}
+>
+  <div id="clicker-browser-extension-timeline-container">
+    <TimelineUi
+      bind:this={timelineUi}
+      {videoPlayerNode}
+      videoDuration={videoPlayerNode ? videoPlayerNode.duration : undefined}
+    />
+  </div>
 
-  <TimelineUi
-    bind:this={timelineUi}
-    {videoPlayerNode}
-    videoDuration={videoPlayerNode ? videoPlayerNode.duration : undefined}
-  />
-
-  <button title={negativeKey} on:click={() => timelineUi.parseClick(-1)}>
-    -1
-  </button>
+  <div id="clicker-browser-extension-counter-buttons">
+    <button
+      style="width: 50%; height: 4em; background-color: green;"
+      title={positiveKey}
+      on:click={() => timelineUi.parseClick(+1)}
+    >
+      +1
+      <br />
+      (Shortcut: "{positiveKey}")
+    </button>
+    <button
+      style="width: 50%; height: 4em; background-color: red;"
+      title={negativeKey}
+      on:click={() => timelineUi.parseClick(-1)}
+    >
+      -1
+      <br />
+      (Shortcut: "{negativeKey}")
+    </button>
+  </div>
 </div>

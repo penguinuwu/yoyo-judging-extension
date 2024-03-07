@@ -1,25 +1,17 @@
-#clicker-browser-extension-ui.hidden-content {
+#clicker-browser-extension-panel.hidden-content {
   /* completely remove scoring ui */
   display: none;
   visibility: hidden;
 }
 
-#clicker-browser-extension-ui {
-  /* required to expand ui div */
-  display: flex;
-  flex-grow: 1;
+#clicker-browser-extension-panel {
+  width: 100%;
 }
 
-#clicker-browser-extension-scoreboard {
-  /* required to expand ui div */
-  display: flex;
-  flex-grow: 1;
-
+#clicker-browser-extension-panel > div {
   /* looks nice */
   margin-top: 1%;
-
-  /* center ui elements */
-  justify-content: space-between;
+  display: flex;
 }
 
 #clicker-browser-extension-timeline {
@@ -27,10 +19,11 @@
   position: relative;
   flex-basis: 100%;
 
-  z-index: 3; /* element on foreground to recieve mouse clicks */
+  /* TODO: hide overflowing ticks at very end of video */
+  /* overflow: hidden; this will hide hover tables too 💀 */
 
-  /* looks nice */
-  margin: 0 1% 0 1%;
+  /* element on foreground to recieve mouse clicks */
+  z-index: 0;
 
   height: 2em;
   align-self: center;
@@ -40,7 +33,7 @@
 .clicker-browser-extension-block {
   position: absolute;
   background: white;
-  z-index: 0;
+  z-index: -3;
   height: 100%;
   width: 10%;
   transition-duration: 0.2s;
@@ -73,29 +66,32 @@
   width: auto;
 }
 
-.clicker-browser-extension-stripe-pos {
+.clicker-browser-extension-stripe {
   position: absolute;
-  background: green;
   width: 1%;
-  z-index: 1;
+  z-index: -2;
   height: 100%;
-  width: 0.5%;
+  width: 0.1%;
+
+  /* ignore mouse hovers */
+  pointer-events: none;
 }
-.clicker-browser-extension-stripe-neg {
-  position: absolute;
+.clicker-browser-extension-stripe.pos {
+  background: green;
+}
+.clicker-browser-extension-stripe.neg {
   background: red;
-  width: 1%;
-  z-index: 1;
-  height: 100%;
-  width: 0.5%;
 }
 
 /* gray ticks representing every 10% */
 .clicker-browser-extension-tick {
   position: absolute;
   background: gray;
-  z-index: 2;
+  z-index: -1;
   height: 80%;
   top: 10%;
   width: 0.2%;
+
+  /* ignore mouse hovers */
+  pointer-events: none;
 }
