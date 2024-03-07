@@ -41,38 +41,7 @@
 </script>
 
 <script lang="ts">
-  import { Storage } from "@plasmohq/storage";
-  import { StorageKeys } from "~contents/store";
-  import Scoreboard from "~injected-ui/scoreboard.svelte";
-
-  const storage = new Storage();
-
-  // activate/deactivate ui
-  let activated = false;
-
-  // set activation iife
-  (async () => {
-    activated = await storage.get(StorageKeys.Activated);
-    console.debug(`ui get activate ${activated}`);
-
-    // set default value
-    if (typeof activated !== "boolean") {
-      activated = false;
-      storage.set(StorageKeys.Activated, false);
-    }
-
-    storage.watch({
-      [StorageKeys.Activated]: (c) => {
-        console.debug(`ui activated: ${c.newValue}`);
-        activated = c.newValue;
-      }
-    });
-  })();
+  import JudgingPanel from "~injected-ui/main-panel.svelte";
 </script>
 
-<div
-  id="clicker-browser-extension-ui"
-  class={activated ? "" : "hidden-content"}
->
-  <Scoreboard {activated} />
-</div>
+<JudgingPanel />

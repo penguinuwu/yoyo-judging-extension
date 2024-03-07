@@ -124,9 +124,9 @@
     {#each Object.entries(scores) as [clickTime, click]}
       {#if parseInt(`${click}`) !== 0}
         <span
-          class={parseInt(`${click}`) > 0
-            ? "clicker-browser-extension-stripe-pos"
-            : "clicker-browser-extension-stripe-neg"}
+          class={`clicker-browser-extension-stripe ${
+            parseInt(`${click}`) > 0 ? "pos" : "neg"
+          }`}
           style={`left: ${(parseFloat(`${clickTime}`) / videoDuration) * 100}%`}
         />
       {/if}
