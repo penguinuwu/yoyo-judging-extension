@@ -74,6 +74,7 @@
   width: 0.1%;
 
   /* ignore mouse hovers */
+  /* https://stackoverflow.com/a/4839672 */
   pointer-events: none;
 }
 .clicker-browser-extension-stripe.pos {
@@ -94,4 +95,9 @@
 
   /* ignore mouse hovers */
   pointer-events: none;
+}
+
+#clicker-browser-extension-counter-buttons > button {
+  width: 50%;
+  height: 4em;
 }

@@ -1,119 +1,69 @@
 <script lang="ts">
-  import { Storage } from "@plasmohq/storage";
-  import { StorageKeys } from "~contents/store";
+  import { CustomEventType, DocumentSelector } from "~contents/constants";
   import TimelineUi from "~injected-ui/timeline.svelte";
-
-  // browser storage
-  const storage = new Storage();
+  import CounterUi from "~injected-ui/counter.svelte";
 
   // activate/deactivate ui
-  let activated: boolean;
-  storage.watch({
-    [StorageKeys.Activated]: (c) => {
-      console.debug(`ui activated: ${c.newValue}`);
-      activated = c.newValue;
+  let activated = false;
+  document.addEventListener(CustomEventType.Activate, (event) => {
+    console.debug(`ui activate ${event}`);
+    if ("detail" in event && typeof event.detail === "boolean") {
+      console.debug(`ui activate ${activated} -> ${event.detail}`);
+      activated = event.detail;
+    } else {
+      console.debug(`ui activate event broke ${JSON.stringify(event)}`);
     }
   });
-  // set activation iife
-  (async () => {
-    activated = await storage.get(StorageKeys.Activated);
-    console.debug(`ui get activate ${activated}`);
-
-    // set default value
-    if (typeof activated !== "boolean") {
-      activated = false;
-      storage.set(StorageKeys.Activated, false);
-    }
-  })();
 
   let timelineUi: TimelineUi;
-  let videoPlayerNode: HTMLMediaElement;
-  let currentVideoSrc: string;
-
-  // key bindings
-  let positiveKey: string;
-  let negativeKey: string;
-  // get default keys iife
-  (async function () {
-    positiveKey = await storage.get(StorageKeys.PositiveKey);
-    negativeKey = await storage.get(StorageKeys.NegativeKey);
-    console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
-
-    // some key is missing from storage, reset to default
-    if (!positiveKey || !negativeKey) {
-      console.debug("reset keys");
-      positiveKey = "1";
-      negativeKey = "0";
-      storage.set(StorageKeys.PositiveKey, positiveKey);
-      storage.set(StorageKeys.NegativeKey, negativeKey);
-    }
-  })();
-
-  // watch for key binding changes
-  storage.watch({
-    [StorageKeys.PositiveKey]: (c) => {
-      console.debug(`positiveKey: ${c.newValue}`);
-      positiveKey = c.newValue;
-    },
-    [StorageKeys.NegativeKey]: (c) => {
-      console.debug(`negativeKey: ${c.newValue}`);
-      negativeKey = c.newValue;
-    }
-  });
-
-  // listen for clicks
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      // do nothing if scoring has not begun
-      if (!activated || !videoPlayerNode) {
-        return;
-      }
-
-      if (event.key === positiveKey || event.key === negativeKey) {
-        // disable default key actions
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        const click = event.key === positiveKey ? +1 : -1;
-        console.debug(`click ${click}`);
-        timelineUi.parseClick(click);
-      }
-    },
-    // capture prioritizes this event listener it's rly kool
-    // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#capture
-    { capture: true }
-  );
+  let videoPlayerNode: HTMLMediaElement | undefined;
+  let currentVideoId = new URLSearchParams(document.location.search).get("v");
 
   /**
    * reset video player and time elements
    */
   async function resetVideo() {
+    console.debug(`reset ${videoPlayerNode} to undefined`);
     videoPlayerNode = undefined;
 
-    const observer = new MutationObserver((_mutationList) => {
-      // ignore video details when ads are shown
-      if (document.querySelector("div.ad-showing")) return;
-
-      // tries to select video when ads are gone
-      const video: HTMLMediaElement = document.querySelector(
-        "#movie_player video"
-      );
-      if (video) {
-        videoPlayerNode = video;
-        observer.disconnect();
-      }
+    // wait for ad to finish
+    const observer = new MutationObserver(getVideoAfterAds);
+    observer.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    // force function call in case video has already changed
+    getVideoAfterAds();
+
+    // what the fuck i just discovered hoisting
+    function getVideoAfterAds() {
+      // do nothing when ads are shown
+      if (document.querySelector(DocumentSelector.Advertisement)) {
+        console.debug("wait for ads to finish");
+        return;
+      }
+
+      // look for video after ads are gone
+      const video: HTMLMediaElement = document.querySelector(
+        DocumentSelector.Video
+      );
+
+      // wait for video duration to load
+      if (video && !Number.isNaN(video.duration)) {
+        // hoisting goes so crazy
+        observer.disconnect();
+
+        console.debug(`video loaded ${video}`);
+        videoPlayerNode = video;
+      }
+    }
   }
 
   /**
    * infinitely running listen for video changes to reset scoreboard
    * https://stackoverflow.com/a/51025612
-   *
-   * TODO: seems kinda inefficient...
    *
    * note: alternative funny solution lol
    * https://stackoverflow.com/a/18398921
@@ -123,21 +73,27 @@
       if (
         mutation.type === "attributes" &&
         mutation.target.nodeType === Node.ELEMENT_NODE &&
-        "tagName" in mutation.target &&
+        "tagName" in mutation.target && // for typescript
         mutation.target.tagName === "VIDEO" &&
-        "src" in mutation.target &&
         mutation.attributeName === "src"
       ) {
-        console.debug(`video change: ${mutation.target.src}`);
+        // src value change triggers multiple times idk why 💀
+        const params = new URLSearchParams(document.location.search);
+        const newVideoId = params.get("v");
 
-        // src value change multiple times idk why 💀
-        // TODO: make permanent fix
-        if (currentVideoSrc !== mutation.target.src) {
-          currentVideoSrc = `${mutation.target.src}`;
-          console.debug("reset video");
+        // ensure video reset is only done once
+        if (currentVideoId !== newVideoId) {
+          console.debug(`video change detected:`);
+          console.debug(mutation.target);
+
+          console.debug(`change video ${currentVideoId} -> ${newVideoId}`);
+          currentVideoId = newVideoId;
 
           // reset scores if exists
-          if (videoPlayerNode && timelineUi) timelineUi.resetScoreMap();
+          if (videoPlayerNode && timelineUi) {
+            timelineUi.resetScoreMap();
+          }
+
           resetVideo();
         }
       }
@@ -159,31 +115,14 @@
   class={activated ? "" : "hidden-content"}
 >
   <div id="clicker-browser-extension-timeline-container">
-    <TimelineUi
-      bind:this={timelineUi}
-      {videoPlayerNode}
-      videoDuration={videoPlayerNode ? videoPlayerNode.duration : undefined}
-    />
+    <TimelineUi bind:this={timelineUi} {videoPlayerNode} />
   </div>
 
-  <div id="clicker-browser-extension-counter-buttons">
-    <button
-      style="width: 50%; height: 4em; background-color: green;"
-      title={positiveKey}
-      on:click={() => timelineUi.parseClick(+1)}
-    >
-      +1
-      <br />
-      (Shortcut: "{positiveKey}")
-    </button>
-    <button
-      style="width: 50%; height: 4em; background-color: red;"
-      title={negativeKey}
-      on:click={() => timelineUi.parseClick(-1)}
-    >
-      -1
-      <br />
-      (Shortcut: "{negativeKey}")
-    </button>
-  </div>
+  <CounterUi
+    {activated}
+    {videoPlayerNode}
+    on:judgeClick={({ detail }) => timelineUi.parseClick(detail)}
+  />
+
+  <div>{currentVideoId}</div>
 </div>

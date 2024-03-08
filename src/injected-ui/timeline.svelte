@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let videoPlayerNode: HTMLMediaElement;
-  export let videoDuration: number;
+  export let videoPlayerNode: HTMLMediaElement | undefined;
+  $: videoDuration = videoPlayerNode ? videoPlayerNode.duration : undefined;
 
   // initialize array of 10 objects
   let scoreMap: { [timestamp: string]: number }[] = Array(10)
