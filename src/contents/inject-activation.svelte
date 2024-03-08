@@ -5,6 +5,8 @@
     PlasmoMountShadowHost
   } from "plasmo";
 
+  import { DocumentSelector } from "~contents/constants";
+
   export const config: PlasmoCSConfig = {
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns
     // https://developer.chrome.com/docs/extensions/mv3/match_patterns/
@@ -13,7 +15,7 @@
 
   // https://docs.plasmo.com/framework/content-scripts-ui/life-cycle#inline
   export const getInlineAnchor: PlasmoGetInlineAnchor = () => {
-    return document.querySelector("#top-row > #owner");
+    return document.querySelector(DocumentSelector.ChannelInfo);
   };
 
   export const mountShadowHost: PlasmoMountShadowHost = ({
@@ -25,36 +27,31 @@
 </script>
 
 <script lang="ts">
-  import { Storage } from "@plasmohq/storage";
-  import { StorageKeys } from "~contents/store";
+  import { CustomEventType } from "~contents/constants";
 
-  const storage = new Storage();
-
-  let activated: boolean;
-
-  storage.watch({
-    [StorageKeys.Activated]: (c) => {
-      console.debug(`button activated: ${c.newValue}`);
-      activated = c.newValue;
-    }
-  });
+  let activated = false;
 
   // toggle activation boolean
-  const toggle = () => {
-    console.debug(`clicking button ${activated}`);
-    storage.set(StorageKeys.Activated, !activated);
-  };
+  function toggle() {
+    console.debug(`clicking button ${activated} -> ${!activated}`);
+    // set it to reduce visual lag
+    activated != activated;
+    document.dispatchEvent(
+      new CustomEvent(CustomEventType.Activate, { detail: !activated })
+    );
+  }
 
-  // set activation iife
-  (async () => {
-    activated = await storage.get(StorageKeys.Activated);
-    console.debug(`button get activate ${activated}`);
-
-    if (typeof activated !== "boolean") {
-      activated = false;
-      storage.set(StorageKeys.Activated, false);
+  // listen for button changes
+  document.addEventListener(CustomEventType.Activate, (event) => {
+    console.debug(`button activate ${event}`);
+    // typescript thing
+    if ("detail" in event && typeof event.detail === "boolean") {
+      console.debug(`button activate ${activated} -> ${event.detail}`);
+      activated = event.detail;
+    } else {
+      console.debug(`button activate event broke ${JSON.stringify(event)}`);
     }
-  })();
+  });
 </script>
 
 <button on:click={toggle}>

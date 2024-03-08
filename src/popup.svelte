@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
-  import { StorageKeys } from "~contents/store";
+  import { StorageKey } from "~contents/constants";
 
   const storage = new Storage();
 
@@ -11,12 +11,12 @@
 
   // watch for key binding changes
   storage.watch({
-    [StorageKeys.PositiveKey]: (c) => {
+    [StorageKey.PositiveKey]: (c) => {
       console.debug(`positiveKey: ${c.newValue}`);
       positiveKey = c.newValue;
       validateKeys();
     },
-    [StorageKeys.NegativeKey]: (c) => {
+    [StorageKey.NegativeKey]: (c) => {
       console.debug(`negativeKey: ${c.newValue}`);
       negativeKey = c.newValue;
       validateKeys();
@@ -55,8 +55,8 @@
     // save keys if valid
     if (positiveNode.checkValidity() && negativeNode.checkValidity()) {
       console.debug(`store keys "${positiveKey}", "${negativeKey}"`);
-      storage.set(StorageKeys.PositiveKey, positiveKey);
-      storage.set(StorageKeys.NegativeKey, negativeKey);
+      storage.set(StorageKey.PositiveKey, positiveKey);
+      storage.set(StorageKey.NegativeKey, negativeKey);
     }
   }
 
@@ -65,8 +65,8 @@
    * https://github.com/sveltejs/svelte/issues/5501
    */
   (async function () {
-    positiveKey = await storage.get(StorageKeys.PositiveKey);
-    negativeKey = await storage.get(StorageKeys.NegativeKey);
+    positiveKey = await storage.get(StorageKey.PositiveKey);
+    negativeKey = await storage.get(StorageKey.NegativeKey);
     console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
 
     // some key is missing from storage, reset to default

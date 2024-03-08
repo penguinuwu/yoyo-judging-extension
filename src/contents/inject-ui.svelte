@@ -6,6 +6,8 @@
     PlasmoMountShadowHost
   } from "plasmo";
 
+  import { DocumentSelector } from "~contents/constants";
+
   // CSUI dont work with svelte CSS extraction 💀
   // https://discord.com/channels/946290204443025438/1165938510432305193/
   // solution:
@@ -29,7 +31,7 @@
 
   // https://docs.plasmo.com/framework/content-scripts-ui/life-cycle#inline
   export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
-    return document.querySelector("#primary-inner > #below");
+    return document.querySelector(DocumentSelector.BelowVideo);
   };
 
   export const mountShadowHost: PlasmoMountShadowHost = ({
