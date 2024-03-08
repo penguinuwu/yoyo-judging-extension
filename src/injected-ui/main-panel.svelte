@@ -123,6 +123,4 @@
     {videoPlayerNode}
     on:judgeClick={({ detail }) => timelineUi.parseClick(detail)}
   />
-
-  <div>{currentVideoId}</div>
 </div>
