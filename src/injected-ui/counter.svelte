@@ -59,6 +59,12 @@
         event.stopPropagation();
         event.stopImmediatePropagation();
 
+        // ignore keys held down
+        if (event.repeat) {
+          console.debug(`capture key ${event.key}`);
+          return;
+        }
+
         const click = event.key === positiveKey ? +1 : -1;
         console.debug(`click ${click}`);
         dispatch("judgeClick", click);

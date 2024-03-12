@@ -91,7 +91,7 @@
 
 <div id="clicker-browser-extension-timeline">
   <!-- divide timeline into 10 sections -->
-  {#each Array(10) as _, i}
+  {#each new Array(10) as _, i}
     <div class="clicker-browser-extension-block" style="left: {i * 10}%">
       <div class="clicker-browser-extension-list">
         <table>
@@ -125,7 +125,7 @@
   {/each}
 
   <!-- stripes inbetween each timeline section -->
-  {#each Array(9) as _, i}
+  {#each new Array(9) as _, i}
     <span
       class="clicker-browser-extension-tick"
       style="left: {(i + 1) * 10 - 0.1}%"
