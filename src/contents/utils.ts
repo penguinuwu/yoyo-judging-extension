@@ -4,7 +4,7 @@
  * @param {string} selector
  * @returns Promise<Element>
  */
-export function waitForElm(selector: string) {
+function waitForElm(selector: string) {
   // TODO: typescript this 💀
   return new Promise((resolve) => {
     const element = document.querySelector(selector)
@@ -24,3 +24,32 @@ export function waitForElm(selector: string) {
     })
   })
 }
+
+/**
+ * convert timestamp seconds to readable time format
+ * @param timestamp seconds with decimal
+ * @param maxTime seconds with decimal
+ * @returns string format
+ */
+function formatTimestamp(timestamp: number, maxTime?: number) {
+  // check if broken
+  if (!maxTime) {
+    console.debug(`formatTimestamp timestamp:${timestamp} maxTime:${maxTime}`)
+    return "0"
+  }
+
+  // get first 4 digits of milliseconds
+  const ms = Math.floor((timestamp * 10000) % 1000).toString()
+
+  const s = Math.floor(timestamp % 60).toString()
+  const m = Math.floor((timestamp / 60) % 60).toString()
+
+  // no mod to limit hours
+  const h = Math.floor(timestamp / 3600).toString()
+
+  return maxTime < 3600
+    ? `${m}:${s.padStart(2, "0")}.${ms.padStart(4, "0")}`
+    : `${h}:${m.padStart(2, "0")}:${s.padStart(2, "0")}.${ms.padStart(4, "0")}`
+}
+
+export { formatTimestamp, waitForElm }

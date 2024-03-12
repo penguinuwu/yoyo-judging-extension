@@ -60,10 +60,53 @@
 .clicker-browser-extension-block:hover > .clicker-browser-extension-list,
 .clicker-browser-extension-block:focus-within > .clicker-browser-extension-list,
 .clicker-browser-extension-block .clicker-browser-extension-list:hover {
+  /* reveal table */
   display: inline-block;
   visibility: visible;
   opacity: 1;
-  width: auto;
+}
+.clicker-browser-extension-list > table {
+  /* table settings */
+  border-collapse: collapse;
+  color: dimgray;
+  text-align: center;
+}
+.clicker-browser-extension-list > table > thead {
+  /* header colour */
+  background-color: dimgray;
+  color: whitesmoke;
+}
+.clicker-browser-extension-list > table th + th {
+  /* vertical lines https://stackoverflow.com/a/22775925 */
+  border-left: 1px solid black;
+}
+.clicker-browser-extension-list > table td + td {
+  border-left: 1px solid dimgray;
+}
+.clicker-browser-extension-list > table td,
+.clicker-browser-extension-list > table th {
+  /* horizontal lines */
+  border-bottom: 1px solid silver;
+  padding: 0.3em 0.4em 0.3em 0.4em;
+}
+.clicker-browser-extension-list > table > tbody tr:hover {
+  /* body hover highlight */
+  background-color: whitesmoke;
+}
+.clicker-browser-extension-list > table .timestamp {
+  /* cool timestamp links */
+  color: steelblue;
+  text-decoration: underline;
+}
+.clicker-browser-extension-list > table .timestamp:hover {
+  /* cool timestamp links 2 */
+  cursor: pointer;
+  text-decoration: none;
+}
+.clicker-browser-extension-list > table .delete:hover {
+  /* cool garbage can */
+  background: silver;
+  cursor: pointer;
 }
 
 .clicker-browser-extension-stripe {
