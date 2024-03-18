@@ -1,29 +1,15 @@
 <script context="module" lang="ts">
-  import type {
-    PlasmoCSConfig,
-    PlasmoGetInlineAnchor,
-    PlasmoMountShadowHost
-  } from "plasmo";
+  import type { PlasmoCSConfig, PlasmoGetRootContainer } from "plasmo";
 
   import { DocumentSelector } from "~contents/constants";
+  import { waitForElm } from "~contents/utils";
 
   export const config: PlasmoCSConfig = {
-    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns
-    // https://developer.chrome.com/docs/extensions/mv3/match_patterns/
     matches: ["https://*.youtube.com/*"]
   };
 
-  // https://docs.plasmo.com/framework/content-scripts-ui/life-cycle#inline
-  export const getInlineAnchor: PlasmoGetInlineAnchor = () => {
-    return document.querySelector(DocumentSelector.ChannelInfo);
-  };
-
-  export const mountShadowHost: PlasmoMountShadowHost = ({
-    anchor,
-    shadowHost
-  }) => {
-    anchor!.element!.appendChild(shadowHost);
-  };
+  export const getRootContainer: PlasmoGetRootContainer = async () =>
+    await waitForElm(DocumentSelector.ChannelInfo);
 </script>
 
 <script lang="ts">
@@ -54,7 +40,11 @@
   });
 </script>
 
-<button on:click={toggle}>
+<button
+  class="yt-spec-button-shape-next yt-spec-button-shape-next--filled yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m"
+  style="margin: 0 8px;"
+  on:click={toggle}
+>
   {#if !activated}
     Score
   {:else}

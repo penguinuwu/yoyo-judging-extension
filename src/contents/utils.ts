@@ -1,11 +1,13 @@
 /**
  * wait for element then return querySelector result
  * https://stackoverflow.com/a/61511955
+ * 
+ * note: i give up on typescript i spent 2 hours
+ * unions and custom types wont work 💀
  * @param {string} selector
- * @returns Promise<Element>
+ * @returns {Promise<Element>}
  */
-function waitForElm(selector: string) {
-  // TODO: typescript this 💀
+function waitForElm(selector: string): Promise<any>{
   return new Promise((resolve) => {
     const element = document.querySelector(selector)
     if (element) return resolve(element)
@@ -18,7 +20,7 @@ function waitForElm(selector: string) {
       }
     })
 
-    observer.observe(document.body, {
+    observer.observe(document, {
       childList: true,
       subtree: true
     })

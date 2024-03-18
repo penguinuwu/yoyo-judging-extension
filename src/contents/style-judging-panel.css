@@ -1,3 +1,7 @@
+#plasmo-shadow-container {
+  z-index: auto !important;
+}
+
 #clicker-browser-extension-panel.hidden-content {
   /* completely remove scoring ui */
   display: none;
@@ -32,11 +36,21 @@
 /* white background for timeline */
 .clicker-browser-extension-block {
   position: absolute;
-  background: white;
+  background: whitesmoke;
   z-index: -3;
   height: 100%;
   width: 10%;
   transition-duration: 0.2s;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+}
+.clicker-browser-extension-block:first-of-type {
+  border-left: 1px solid gray;
+  border-radius: 4px 0 0 4px;
+}
+.clicker-browser-extension-block:last-of-type {
+  border-right: 1px solid gray;
+  border-radius: 0 4px 4px 0;
 }
 .clicker-browser-extension-block:hover {
   background: gray;
@@ -54,7 +68,7 @@
   height: 400%;
 
   transition: all 0.2s ease;
-  background-color: white;
+  background-color: whitesmoke;
   overflow-y: scroll;
 }
 .clicker-browser-extension-block:hover > .clicker-browser-extension-list,
@@ -116,6 +130,9 @@
   height: 100%;
   width: 0.1%;
 
+  /* account for timeline block border */
+  top: 1px;
+
   /* ignore mouse hovers */
   /* https://stackoverflow.com/a/4839672 */
   pointer-events: none;
@@ -133,8 +150,10 @@
   background: gray;
   z-index: -1;
   height: 80%;
-  top: 10%;
   width: 0.2%;
+
+  /* account for timeline block border */
+  top: calc(10% + 1px);
 
   /* ignore mouse hovers */
   pointer-events: none;

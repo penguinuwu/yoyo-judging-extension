@@ -13,34 +13,34 @@
   const storage = new Storage();
 
   // key bindings
-  let positiveKey: string;
-  let negativeKey: string;
+  let keyPositive: string;
+  let keyNegative: string;
 
   // get default keys iife
   (async function () {
-    positiveKey = await storage.get(StorageKey.PositiveKey);
-    negativeKey = await storage.get(StorageKey.NegativeKey);
-    console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
+    keyPositive = await storage.get(StorageKey.KeyPositive);
+    keyNegative = await storage.get(StorageKey.KeyNegative);
+    console.debug(`init get keys "${keyPositive}", "${keyNegative}"`);
 
     // some key is missing from storage, reset to default
-    if (!positiveKey || !negativeKey) {
+    if (!keyPositive || !keyNegative) {
       console.debug("reset keys");
-      positiveKey = "1";
-      negativeKey = "0";
-      storage.set(StorageKey.PositiveKey, positiveKey);
-      storage.set(StorageKey.NegativeKey, negativeKey);
+      keyPositive = "1";
+      keyNegative = "0";
+      storage.set(StorageKey.KeyPositive, keyPositive);
+      storage.set(StorageKey.KeyNegative, keyNegative);
     }
   })();
 
   // watch for key binding changes
   storage.watch({
-    [StorageKey.PositiveKey]: (c) => {
-      console.debug(`positiveKey: ${c.newValue}`);
-      positiveKey = c.newValue;
+    [StorageKey.KeyPositive]: (c) => {
+      console.debug(`keyPositive: ${c.newValue}`);
+      keyPositive = c.newValue;
     },
-    [StorageKey.NegativeKey]: (c) => {
-      console.debug(`negativeKey: ${c.newValue}`);
-      negativeKey = c.newValue;
+    [StorageKey.KeyNegative]: (c) => {
+      console.debug(`keyNegative: ${c.newValue}`);
+      keyNegative = c.newValue;
     }
   });
 
@@ -53,7 +53,7 @@
         return;
       }
 
-      if (event.key === positiveKey || event.key === negativeKey) {
+      if (event.key === keyPositive || event.key === keyNegative) {
         // disable default key actions
         event.preventDefault();
         event.stopPropagation();
@@ -65,7 +65,7 @@
           return;
         }
 
-        const click = event.key === positiveKey ? +1 : -1;
+        const click = event.key === keyPositive ? +1 : -1;
         console.debug(`click ${click}`);
         dispatch("judgeClick", click);
       }
@@ -78,17 +78,19 @@
 
 <div id="clicker-browser-extension-counter-buttons">
   <button
-    style="background-color: green;"
-    title={positiveKey}
+    class="youtube-button"
+    style="color: #f1f1f1; background-color: green;"
+    title={keyPositive}
     on:click={() => dispatch("judgeClick", +1)}
   >
-    +1<br />(Shortcut: "{positiveKey}")
+    +1<br />(Shortcut: "{keyPositive}")
   </button>
   <button
-    style="background-color: red;"
-    title={negativeKey}
+    class="youtube-button"
+    style="color: #f1f1f1; background-color: red;"
+    title={keyNegative}
     on:click={() => dispatch("judgeClick", -1)}
   >
-    -1<br />(Shortcut: "{negativeKey}")
+    -1<br />(Shortcut: "{keyNegative}")
   </button>
 </div>
