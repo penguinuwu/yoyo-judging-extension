@@ -5,14 +5,15 @@
   "description": "An extension to add UI to Youtube for judging YoYo performances.",
   "author": "<evan@good-meowning.com>",
   "scripts": {
-    "dev-c": "plasmo dev --target=chrome-mv3 --verbose",
-    "dev-f": "plasmo dev --target=firefox-mv2 --verbose",
-    "dev-f3": "plasmo dev --target=firefox-mv3 --verbose",
-    "run-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium' --verbose --devtools",
-    "run-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop' --verbose --devtools",
-    "run-f3": "web-ext --source-dir='./build/firefox-mv3-dev' run --target='firefox-desktop' --verbose --devtools",
+    "server-c": "plasmo dev --target=chrome-mv3 --verbose",
+    "server-f": "plasmo dev --target=firefox-mv2 --verbose",
+    "server-fv3": "plasmo dev --target=firefox-mv3 --verbose",
+    "browser-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium' --verbose --devtools",
+    "browser-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop' --verbose --devtools",
+    "browser-fv3": "web-ext --source-dir='./build/firefox-mv3-dev' run --target='firefox-desktop' --verbose --devtools",
     "build-c": "plasmo build --target=chrome-mv3",
-    "build-f": "plasmo build --target=firefox-mv3",
+    "build-f": "plasmo build --target=firefox-mv2",
+    "build-fv3": "plasmo build --target=firefox-mv3",
     "package": "plasmo package"
   },
   "dependencies": {
@@ -37,18 +38,13 @@
         "id": "your-id@example.com"
       }
     },
-    "content_security_policy": {
-      "extension_pages": "script-src 'self'"
-    },
     "host_permissions": [
       "https://*.youtube.com/*"
     ],
     "permissions": [
       "activeTab",
       "scripting",
-      "storage",
-      "tabs",
-      "webNavigation"
+      "storage"
     ]
   }
 }
