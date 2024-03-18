@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { CustomEventType, StorageKey } from "~contents/constants";
   import { formatTimestamp } from "~contents/utils";
 
   export let videoPlayerNode: HTMLMediaElement | undefined;
@@ -30,6 +31,12 @@
 
     let clickTime = videoPlayerNode.currentTime;
     console.debug(`parseClick: ${click} at ${clickTime}`);
+
+    document.dispatchEvent(
+      new CustomEvent(CustomEventType.Click, {
+        detail: click > 0 ? StorageKey.KeyPositive : StorageKey.KeyNegative
+      })
+    );
 
     // prevent time from hitting the very end of video
     if (clickTime >= videoDuration) {

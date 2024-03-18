@@ -12,13 +12,14 @@
   // https://discord.com/channels/946290204443025438/1165938510432305193/
   // solution:
   // https://docs.plasmo.com/framework/content-scripts-ui/styling#import-stylesheet
-  import styleText from "data-text:~contents/style.css";
+  import buttonStyle from "data-text:~contents/style-button.css";
+  import judgingPanelStyle from "data-text:~contents/style-judging-panel.css";
 
   export const getStyle: PlasmoGetStyle = () => {
     // https://github.com/PlasmoHQ/plasmo/issues/161
     // https://github.com/PlasmoHQ/examples/tree/main/with-css-modules
     const style = document.createElement("style");
-    style.textContent = styleText;
+    style.textContent = judgingPanelStyle + buttonStyle;
     return style;
   };
 
