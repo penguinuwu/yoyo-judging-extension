@@ -2,6 +2,15 @@
   import { CustomEventType, DocumentSelector } from "~contents/constants";
   import TimelineUi from "~injected-ui/timeline.svelte";
   import CounterUi from "~injected-ui/counter.svelte";
+  import SummaryUi from "~injected-ui/summary.svelte";
+
+  let timelineUi: TimelineUi;
+
+  // initialize array of 10 objects
+  // TODO: maybe svelte store or better architecture design?
+  export let scoreMap = new Array(10)
+    .fill(undefined)
+    .map(() => new Map<number, number>());
 
   // activate/deactivate ui
   let activated = false;
@@ -15,7 +24,6 @@
     }
   });
 
-  let timelineUi: TimelineUi;
   let videoPlayerNode: HTMLMediaElement | undefined;
   let currentVideoId = new URLSearchParams(document.location.search).get("v");
 
@@ -115,12 +123,18 @@
   class={activated ? "" : "hidden-content"}
 >
   <div id="clicker-browser-extension-timeline-container">
-    <TimelineUi bind:this={timelineUi} {videoPlayerNode} />
+    <TimelineUi bind:this={timelineUi} {videoPlayerNode} bind:scoreMap />
   </div>
 
   <CounterUi
     {activated}
     {videoPlayerNode}
     on:judgeClick={({ detail }) => timelineUi.parseClick(detail)}
+  />
+
+  <SummaryUi
+    bind:scoreMap
+    on:resetScoreMap={() => timelineUi.resetScoreMap()}
+    on:importScoreMap={({ detail }) => timelineUi.setScoreMap(detail)}
   />
 </div>

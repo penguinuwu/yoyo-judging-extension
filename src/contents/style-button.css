@@ -1,11 +1,11 @@
-button.youtube-button {
+.youtube-button {
   margin: 0 8px;
   padding: 0 16px;
   height: 36px;
   font-size: 14px;
   line-height: 36px;
   border-radius: 18px;
-  
+
   white-space: nowrap;
   min-width: 0;
   text-transform: none;
@@ -20,4 +20,16 @@ button.youtube-button {
   text-decoration: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
+}
+.youtube-button.green {
+  color: #f1f1f1;
+  background-color: green;
+}
+.youtube-button.red {
+  color: #f1f1f1;
+  background-color: red;
+}
+.youtube-button.dark {
+  color: #f1f1f1;
+  background-color: red;
 }
