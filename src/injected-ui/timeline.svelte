@@ -3,19 +3,29 @@
   import { formatTimestamp } from "~contents/utils";
 
   export let videoPlayerNode: HTMLMediaElement | undefined;
-  $: videoDuration = videoPlayerNode ? videoPlayerNode.duration : undefined;
+  $: videoDuration = videoPlayerNode?.duration;
 
-  // initialize array of 10 objects
-  let scoreMap = new Array(10)
-    .fill(undefined)
-    .map(() => new Map<number, number>());
+  // array of 10 objects
+  export let scoreMap: Map<number, number>[];
+
+  /**
+   * set scores from json
+   * assuming input is sanitized
+   * @param scores
+   */
+  export function setScoreMap(scores: [number, number][][]) {
+    for (let index = 0; index < 10; index++) {
+      scoreMap[index] = new Map(scores[index]);
+    }
+  }
 
   /**
    * delete all mappings of timestamp to click
    */
   export function resetScoreMap() {
     for (let index = 0; index < 10; index++) {
-      scoreMap[index].clear();
+      // clear and force re-render
+      scoreMap[index] = new Map<number, number>();
     }
   }
 

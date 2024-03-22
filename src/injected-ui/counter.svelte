@@ -7,7 +7,7 @@
   export let activated: boolean;
   export let videoPlayerNode: HTMLMediaElement;
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{ judgeClick: number }>();
 
   // browser storage
   const storage = new Storage();
@@ -78,16 +78,14 @@
 
 <div id="clicker-browser-extension-counter-buttons">
   <button
-    class="youtube-button"
-    style="color: #f1f1f1; background-color: green;"
+    class="youtube-button green"
     title={keyPositive}
     on:click={() => dispatch("judgeClick", +1)}
   >
     +1<br />(Shortcut: "{keyPositive}")
   </button>
   <button
-    class="youtube-button"
-    style="color: #f1f1f1; background-color: red;"
+    class="youtube-button red"
     title={keyNegative}
     on:click={() => dispatch("judgeClick", -1)}
   >
