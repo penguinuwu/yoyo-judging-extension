@@ -82,48 +82,85 @@
   })();
 </script>
 
-<p>Edit your clicking keys!</p>
+<header>
+  <h1>Yo-Yo Judging Helper</h1>
+</header>
 
-<div>
-  <label for="pos-key">Positive (+1): </label>
-  <input
-    bind:this={positiveNode}
-    bind:value={positiveKey}
-    on:input={updateKeys}
-    id="pos-key"
-    name="pos-key"
-    type="text"
-    minlength="1"
-    maxlength="1"
-    pattern={"^.{1}$"}
-    required
-  />
-  <span class="validity" />
-</div>
+<main>
+  <section>
+    <h2>Clicking keyboard shortcuts:</h2>
 
-<div>
-  <label for="neg-key">Negative (-1): </label>
-  <input
-    bind:this={negativeNode}
-    bind:value={negativeKey}
-    on:input={updateKeys}
-    id="neg-key"
-    name="neg-key"
-    type="text"
-    minlength="1"
-    maxlength="1"
-    pattern={"^.{1}$"}
-    required
-  />
-  <span class="validity" />
-</div>
+    <div class="label-input">
+      <label for="pos-key">Positive click (score +1): </label>
+      <input
+        bind:this={positiveNode}
+        bind:value={positiveKey}
+        on:input={updateKeys}
+        id="pos-key"
+        name="pos-key"
+        type="text"
+        minlength="1"
+        maxlength="1"
+        pattern={"^.{1}$"}
+        required
+      />
+      <span class="validity" />
+    </div>
+
+    <div class="label-input">
+      <label for="neg-key">Negative click (score -1): </label>
+      <input
+        bind:this={negativeNode}
+        bind:value={negativeKey}
+        on:input={updateKeys}
+        id="neg-key"
+        name="neg-key"
+        type="text"
+        minlength="1"
+        maxlength="1"
+        pattern={"^.{1}$"}
+        required
+      />
+      <span class="validity" />
+    </div>
+  </section>
+</main>
+
+<footer>
+  Any problems? Please submit an issue on <a
+    href="https://github.com/penguinuwu/yoyo-judging-extension/"
+    target="_blank"
+    rel="noopener noreferrer">Github</a
+  > 🩷
+</footer>
 
 <style>
   :global(html) {
-    min-height: 10em;
+    min-height: 13em;
     min-width: 20em;
+  }
+  :global(body) {
     background: #282b30;
-    color: aliceblue;
+    color: whitesmoke;
+    margin: 1em;
+  }
+
+  header {
+    text-align: center;
+  }
+
+  main {
+    margin: 0 0 0 1em;
+  }
+  .label-input {
+    /* margin: 0 1em 0.3em 1em; */
+    margin-bottom: 0.3em;
+  }
+  label:hover {
+    cursor: text;
+  }
+  input {
+    width: 2em;
   }
 
   /* https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text#specifying_a_pattern */
@@ -139,5 +176,17 @@
     position: absolute;
     content: "✓";
     padding-left: 5px;
+  }
+
+  a {
+    color: paleturquoise;
+  }
+  a:hover {
+    text-decoration: none;
+  }
+  footer {
+    margin: 2em auto 0 auto;
+    margin-top: 2em;
+    text-align: center;
   }
 </style>
