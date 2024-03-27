@@ -1,15 +1,15 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { CustomEventType, StorageKey } from "~contents/constants";
 
+  import { CustomEventType, StorageKey } from "~lib/constants";
+  import type { ScoreJson } from "~lib/types";
+  import { getScoresPerSecond } from "~lib/utils";
   import {
     activated,
     playbackMode,
     scoreMap,
     videoPlayerNode
-  } from "~contents/store";
-  import type { ScoreJson } from "~contents/types";
-  import { getScoresPerSecond } from "~contents/utils";
+  } from "~stores/volatile";
 
   const dispatch = createEventDispatcher<{
     resetScoreMap: void;

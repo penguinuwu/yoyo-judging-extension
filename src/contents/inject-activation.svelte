@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
   import type { PlasmoCSConfig, PlasmoGetRootContainer } from "plasmo";
 
-  import { DocumentSelector } from "~contents/constants";
-  import { waitForElm } from "~contents/utils";
+  import { DocumentSelector } from "~lib/constants";
+  import { waitForElm } from "~lib/utils";
 
   export const config: PlasmoCSConfig = {
     matches: ["https://*.youtube.com/*"]
@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-  import { CustomEventType } from "~contents/constants";
+  import { CustomEventType } from "~lib/constants";
 
   let activated = false;
 

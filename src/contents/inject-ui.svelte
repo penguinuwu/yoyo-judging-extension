@@ -6,14 +6,14 @@
     PlasmoMountShadowHost
   } from "plasmo";
 
-  import { DocumentSelector } from "~contents/constants";
+  import { DocumentSelector } from "~lib/constants";
 
   // CSUI dont work with svelte CSS extraction 💀
   // https://discord.com/channels/946290204443025438/1165938510432305193/
   // solution:
   // https://docs.plasmo.com/framework/content-scripts-ui/styling#import-stylesheet
-  import buttonStyle from "data-text:~contents/style-button.css";
-  import judgingPanelStyle from "data-text:~contents/style-judging-panel.css";
+  import buttonStyle from "data-text:~styles/button.css";
+  import judgingPanelStyle from "data-text:~styles/judging-panel.css";
 
   export const getStyle: PlasmoGetStyle = () => {
     // https://github.com/PlasmoHQ/plasmo/issues/161

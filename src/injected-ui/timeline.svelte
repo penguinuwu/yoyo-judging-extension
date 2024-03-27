@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { CustomEventType, StorageKey } from "~contents/constants";
+  import { CustomEventType, StorageKey } from "~lib/constants";
+  import type { ScoreJson } from "~lib/types";
+  import { formatTimestamp } from "~lib/utils";
   import {
     activated,
     playbackMode,
     scoreMap,
     videoPlayerNode
-  } from "~contents/store";
-  import type { ScoreJson } from "~contents/types";
-  import { formatTimestamp } from "~contents/utils";
+  } from "~stores/volatile";
 
   $: videoDuration = $videoPlayerNode?.duration;
 

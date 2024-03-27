@@ -2,8 +2,8 @@
   import { Storage } from "@plasmohq/storage";
   import { createEventDispatcher } from "svelte";
 
-  import { StorageKey } from "~contents/constants";
-  import { activated, playbackMode, videoPlayerNode } from "~contents/store";
+  import { StorageKey } from "~lib/constants";
+  import { activated, playbackMode, videoPlayerNode } from "~stores/volatile";
 
   const dispatch = createEventDispatcher<{ judgeClick: number }>();
 

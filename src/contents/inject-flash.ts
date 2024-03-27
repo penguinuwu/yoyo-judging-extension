@@ -1,11 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import {
-  CustomEventType,
-  DocumentSelector,
-  StorageKey
-} from "~contents/constants"
-import { waitForElm } from "~contents/utils"
+import { CustomEventType, DocumentSelector, StorageKey } from "~lib/constants"
+import { waitForElm } from "~lib/utils"
 
 export const config: PlasmoCSConfig = { matches: ["https://*.youtube.com/*"] }
 
