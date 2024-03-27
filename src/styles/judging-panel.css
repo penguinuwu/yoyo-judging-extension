@@ -1,7 +1,3 @@
-#plasmo-shadow-container {
-  z-index: auto !important;
-}
-
 #clicker-browser-extension-panel.hidden-content {
   /* completely remove scoring ui */
   display: none;
@@ -176,19 +172,4 @@
 #clicker-browser-extension-summary > table th,
 #clicker-browser-extension-summary > table td {
   border: 1px solid gray;
-}
-
-.w-25 {
-  width: 25% !important;
-}
-.w-50 {
-  width: 50% !important;
-}
-
-.h-4em {
-  height: 4em !important;
-}
-
-.flex-grow {
-  flex-grow: 1;
 }

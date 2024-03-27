@@ -14,12 +14,13 @@
   // https://docs.plasmo.com/framework/content-scripts-ui/styling#import-stylesheet
   import buttonStyle from "data-text:~styles/button.css";
   import judgingPanelStyle from "data-text:~styles/judging-panel.css";
+  import commonStyle from "data-text:~styles/common.css";
 
   export const getStyle: PlasmoGetStyle = () => {
     // https://github.com/PlasmoHQ/plasmo/issues/161
     // https://github.com/PlasmoHQ/examples/tree/main/with-css-modules
     const style = document.createElement("style");
-    style.textContent = judgingPanelStyle + buttonStyle;
+    style.textContent = judgingPanelStyle + buttonStyle + commonStyle;
     return style;
   };
 
