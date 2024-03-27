@@ -97,8 +97,8 @@
 .clicker-browser-extension-list > table td + td {
   border-left: 1px solid dimgray;
 }
-.clicker-browser-extension-list > table td,
-.clicker-browser-extension-list > table th {
+.clicker-browser-extension-list > table th,
+.clicker-browser-extension-list > table td {
   /* horizontal lines */
   border-bottom: 1px solid silver;
   padding: 0.3em 0.4em 0.3em 0.4em;
@@ -159,7 +159,36 @@
   pointer-events: none;
 }
 
-#clicker-browser-extension-counter-buttons > button {
-  width: 50%;
+#clicker-browser-extension-summary > table {
+  color: dimgray;
+  background-color: whitesmoke;
+
+  text-align: center;
   height: 4em;
+  width: 100%;
+
+  border-collapse: collapse;
+  border-radius: 4px;
+
+  /* no idea why this works https://stackoverflow.com/a/2586780 */
+  border-style: hidden;
+}
+#clicker-browser-extension-summary > table th,
+#clicker-browser-extension-summary > table td {
+  border: 1px solid gray;
+}
+
+.w-25 {
+  width: 25% !important;
+}
+.w-50 {
+  width: 50% !important;
+}
+
+.h-4em {
+  height: 4em !important;
+}
+
+.flex-grow {
+  flex-grow: 1;
 }

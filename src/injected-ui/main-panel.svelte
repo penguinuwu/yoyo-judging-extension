@@ -1,38 +1,30 @@
 <script lang="ts">
   import { CustomEventType, DocumentSelector } from "~contents/constants";
-  import TimelineUi from "~injected-ui/timeline.svelte";
+  import { activated, videoPlayerNode } from "~contents/store";
   import CounterUi from "~injected-ui/counter.svelte";
   import SummaryUi from "~injected-ui/summary.svelte";
+  import TimelineUi from "~injected-ui/timeline.svelte";
 
   let timelineUi: TimelineUi;
-
-  // initialize array of 10 objects
-  // TODO: maybe svelte store or better architecture design?
-  export let scoreMap = new Array(10)
-    .fill(undefined)
-    .map(() => new Map<number, number>());
+  let currentVideoId = new URLSearchParams(document.location.search).get("v");
 
   // activate/deactivate ui
-  let activated = false;
   document.addEventListener(CustomEventType.Activate, (event) => {
     console.debug(`ui activate ${event}`);
     if ("detail" in event && typeof event.detail === "boolean") {
-      console.debug(`ui activate ${activated} -> ${event.detail}`);
-      activated = event.detail;
+      console.debug(`ui activate ${$activated} -> ${event.detail}`);
+      $activated = event.detail;
     } else {
       console.debug(`ui activate event broke ${JSON.stringify(event)}`);
     }
   });
 
-  let videoPlayerNode: HTMLMediaElement | undefined;
-  let currentVideoId = new URLSearchParams(document.location.search).get("v");
-
   /**
    * reset video player and time elements
    */
   async function resetVideo() {
-    console.debug(`reset ${videoPlayerNode} to undefined`);
-    videoPlayerNode = undefined;
+    console.debug(`reset ${$videoPlayerNode} to undefined`);
+    $videoPlayerNode = undefined;
 
     // wait for ad to finish
     const observer = new MutationObserver(getVideoAfterAds);
@@ -64,7 +56,7 @@
         observer.disconnect();
 
         console.debug(`video loaded ${video}`);
-        videoPlayerNode = video;
+        $videoPlayerNode = video;
       }
     }
   }
@@ -98,7 +90,7 @@
           currentVideoId = newVideoId;
 
           // reset scores if exists
-          if (videoPlayerNode && timelineUi) {
+          if ($videoPlayerNode && timelineUi) {
             timelineUi.resetScoreMap();
           }
 
@@ -120,20 +112,16 @@
 
 <div
   id="clicker-browser-extension-panel"
-  class={activated ? "" : "hidden-content"}
+  class={$activated ? "" : "hidden-content"}
 >
   <div id="clicker-browser-extension-timeline-container">
-    <TimelineUi bind:this={timelineUi} {videoPlayerNode} bind:scoreMap />
+    <TimelineUi bind:this={timelineUi} />
   </div>
 
-  <CounterUi
-    {activated}
-    {videoPlayerNode}
-    on:judgeClick={({ detail }) => timelineUi.parseClick(detail)}
-  />
+  <CounterUi on:judgeClick={({ detail }) => timelineUi.parseClick(detail)} />
 
   <SummaryUi
-    bind:scoreMap
+    {currentVideoId}
     on:resetScoreMap={() => timelineUi.resetScoreMap()}
     on:importScoreMap={({ detail }) => timelineUi.setScoreMap(detail)}
   />

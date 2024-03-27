@@ -1,51 +1,72 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { CustomEventType, StorageKey } from "~contents/constants";
+
+  import {
+    activated,
+    playbackMode,
+    scoreMap,
+    videoPlayerNode
+  } from "~contents/store";
+  import type { ScoreJson } from "~contents/types";
+  import { getScoresPerSecond } from "~contents/utils";
 
   const dispatch = createEventDispatcher<{
     resetScoreMap: void;
-    importScoreMap: [number, number][][];
+    importScoreMap: ScoreJson;
   }>();
 
-  // array of 10 objects
-  export let scoreMap: Map<number, number>[];
+  export let currentVideoId: string;
 
-  $: scoreMapFlat = new Map(scoreMap.flatMap((block) => [...block]));
+  // convert to sorted flattened array
+  $: scoreMapFlat = $scoreMap
+    .flatMap((block) => Array.from(block))
+    .sort((a, b) => a[0] - b[0]);
 
   // converted to array for browser compatibility
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/reduce
-  $: [scorePositive, scoreNegative] = [...scoreMapFlat.values()].reduce(
-    (sums, clicks) => {
-      sums[clicks > 0 ? 0 : 1] += clicks;
+  $: [scorePositive, scoreNegative] = scoreMapFlat.reduce(
+    (sums, [_time, score]) => {
+      sums[score > 0 ? 0 : 1] += score;
       return sums;
     },
     [0, 0]
   );
   $: scoreTotal = scorePositive + scoreNegative;
   $: totalTime =
-    Math.max(...scoreMapFlat.keys()) - Math.min(...scoreMapFlat.keys());
-
-  // $: if (scoreMapFlat || !scoreMapFlat) {
-  //   console.debug("update scoreMapFlat");
-  //   console.debug(scoreMapFlat);
-  // }
-  // $: if (scorePositive || !scorePositive)
-  //   console.debug(`update scorePositive ${scorePositive}`);
-  // $: if (scoreNegative || !scoreNegative)
-  //   console.debug(`update scoreNegative ${scoreNegative}`);
-  // $: if (scoreTotal || !scoreTotal)
-  //   console.debug(`update scoreTotal ${scoreTotal}`);
-  // $: if (totalTime || !totalTime)
-  //   console.debug(`update totalTime ${totalTime}`);
+    Math.max(...scoreMapFlat.flatMap(([time, _score]) => time)) -
+    Math.min(...scoreMapFlat.flatMap(([time, _score]) => time));
 
   // download scores
   let filesDownloadElement: HTMLAnchorElement;
-  let fileContent: string;
   function downloadScores() {
-    const scoreArray = scoreMap.map((block) => [...block.entries()]);
-    const scoreJson = JSON.stringify(scoreArray, null, "\t");
-    fileContent =
-      `data:application/json;charset=utf-8,` + encodeURIComponent(scoreJson);
-    filesDownloadElement.setAttribute("download", `scores.json`);
+    console.debug(`download scores ${currentVideoId}`);
+
+    // missing data
+    if (!currentVideoId || !scoreMapFlat || scoreMapFlat.length <= 0) {
+      return;
+    }
+
+    // set download default file name
+    filesDownloadElement.setAttribute(
+      "download",
+      `${currentVideoId}_${Date.now()}.json`
+    );
+
+    // generate stringified json
+    const scoreJson: ScoreJson = {
+      date: Date.now(),
+      scores: scoreMapFlat,
+      videoId: currentVideoId
+    };
+    const scoreJsonString = JSON.stringify(scoreJson);
+    filesDownloadElement.setAttribute(
+      "href",
+      `data:application/json;charset=utf-8,` +
+        encodeURIComponent(scoreJsonString)
+    );
+
+    // download file
     filesDownloadElement.click();
   }
 
@@ -56,58 +77,182 @@
     scoreFiles[0]
       .text()
       .then((scoreText) => {
-        const scores = JSON.parse(scoreText) as [number, number][][];
-
-        // validate outer structure of score blocks
-        if (!scores || !Array.isArray(scores) || scores.length != 10) {
-          console.debug(scoreText);
-          window.alert("Error: incorrect scores format!");
+        // verify video loaded
+        if (!currentVideoId || !$videoPlayerNode) {
+          scoreFiles = undefined;
+          window.alert("Error: video not ready!");
           return;
         }
 
-        // validate inner structure
-        for (let index = 0; index < 10; index++) {
-          if (!Array.isArray(scores[index])) {
-            console.debug(scoreText);
-            window.alert("Error: incorrect scores format!");
-            return;
-          }
-          for (const pair of scores[index]) {
-            // validate each time-click pair
-            if (
-              !Array.isArray(pair) ||
-              pair.length !== 2 ||
-              typeof pair[0] !== "number" ||
-              typeof pair[1] !== "number"
-            ) {
-              console.debug(pair);
-              window.alert("Error: incorrect scores format");
-              return;
-            }
+        // read json
+        const scoreJson = JSON.parse(scoreText) as ScoreJson;
+        console.debug(`import scores`);
+        console.debug(scoreJson);
 
-            // try-catch validation lol
-            try {
-              new Map(scores[index]);
-            } catch (error) {
-              console.debug(error);
-              window.alert("Error: incorrect scores format!");
-              return;
-            }
+        // reset reference
+        scoreFiles = undefined;
+
+        // validate json structure
+        if (
+          !scoreJson ||
+          !Array.isArray(scoreJson.scores) ||
+          scoreJson.scores.length <= 0
+        ) {
+          window.alert("Error: empty scores data!");
+          return;
+        } else if (scoreJson.videoId !== currentVideoId) {
+          window.alert("Error: wrong video!");
+          return;
+        }
+
+        // validate each time-click pair
+        for (const pair of scoreJson.scores) {
+          if (
+            !Array.isArray(pair) ||
+            pair.length !== 2 ||
+            typeof pair[0] !== "number" ||
+            typeof pair[1] !== "number"
+          ) {
+            console.debug(pair);
+            window.alert("Error: incorrect scores format");
+            return;
           }
         }
 
+        // sort pairs
+        scoreJson.scores.sort((a, b) => a[0] - b[0]);
+
         // input is validated
-        dispatch("importScoreMap", scores);
+        dispatch("importScoreMap", scoreJson);
       })
       .catch((error) => {
         console.debug(error);
+        scoreFiles = undefined;
         window.alert("Error: cannot understand scores!");
       });
   }
+
+  // playback mode
+  const intervalDelay = 10;
+  const intervalDelayThreshold = intervalDelay * 4; // max delay before skipping clicks
+  let intervalId: number | undefined;
+  let scoreMapIndex: number | undefined;
+  async function togglePlaybackMode() {
+    // disable playback mode
+    if ($playbackMode) {
+      console.debug("playback mode disabled");
+
+      playbackMode.set(false);
+
+      // clear interval
+      clearInterval(intervalId);
+      intervalId = undefined;
+
+      // pause video
+      if ($videoPlayerNode) {
+        $videoPlayerNode.pause();
+      }
+
+      return;
+    }
+
+    // scoring has not begun
+    if (!activated || !videoPlayerNode || !scoreMapFlat) {
+      return;
+    }
+
+    // get first click time
+    const firstClickTime = Math.min(
+      ...scoreMapFlat.flatMap(([time, _score]) => time)
+    );
+    if (!Number.isFinite(firstClickTime)) {
+      console.debug(`first click time not finite ${firstClickTime}`);
+      return;
+    }
+
+    // enable playback
+    console.debug("playback mode enabled");
+    playbackMode.set(true);
+
+    // set video to 5 seconds before first click
+    $videoPlayerNode.currentTime = Math.max(firstClickTime - 5, 0);
+    let previousTime = $videoPlayerNode.currentTime;
+
+    // start video
+    await $videoPlayerNode.play();
+
+    // clear old interval to be safe, then set new interval
+    clearInterval(intervalId);
+    intervalId = setInterval(() => {
+      // video changed or scoring stopped
+      if (!activated || !videoPlayerNode || !scoreMapFlat) {
+        console.debug(`playback: video changed or scoring stopped`);
+        clearInterval(intervalId);
+        return;
+      }
+
+      const currentTime = $videoPlayerNode.currentTime;
+
+      // video paused
+      if (previousTime === currentTime) {
+        console.debug(`playback: video paused at ${currentTime}`);
+        return;
+      }
+
+      // video rewinded or fast-forwarded or huge lag
+      if (
+        currentTime < previousTime ||
+        previousTime + intervalDelayThreshold < currentTime
+      ) {
+        console.debug(`playback: reset ${previousTime} -> ${currentTime}`);
+        previousTime = currentTime;
+        scoreMapIndex = undefined;
+        return;
+      }
+
+      // find next click index
+      if (scoreMapIndex === undefined) {
+        console.debug(
+          `playback: scoreMapIndex undefined (${previousTime}, ${currentTime}]`
+        );
+
+        // search for index of clicks recorded after previousTime
+        // TODO: use binary search since array is sorted
+        // scoreMapIndex = findSorted(scoreMapFlat, (e) => previousTime < e[0]);
+        scoreMapIndex = scoreMapFlat.findIndex(
+          ([clickTime, _click]) => previousTime < clickTime
+        );
+
+        // no clicks recorded after previousTime
+        if (scoreMapIndex === -1) {
+          return;
+        }
+      }
+
+      // play clicks between (previousTime, currentTime]
+      while (scoreMapIndex < scoreMapFlat.length) {
+        const [timestamp, click] = scoreMapFlat[scoreMapIndex];
+
+        // stop playing clicks past current time
+        if (currentTime < timestamp) {
+          break;
+        }
+
+        document.dispatchEvent(
+          new CustomEvent(CustomEventType.ClickFlash, {
+            detail: click > 0 ? StorageKey.KeyPositive : StorageKey.KeyNegative
+          })
+        );
+        scoreMapIndex++;
+      }
+
+      previousTime = currentTime;
+    }, intervalDelay);
+  }
 </script>
 
-<div>
-  <table style="color: white;">
+<div id="clicker-browser-extension-summary">
+  <table>
     <thead>
       <tr>
         <th>Total Score</th>
@@ -118,27 +263,53 @@
     <tbody>
       <tr>
         <td>
-          {scoreTotal} ({(scoreTotal / totalTime).toFixed(2)} clicks/second)
+          {scoreTotal} ({getScoresPerSecond(scoreTotal, totalTime)})
         </td>
         <td>
-          {scorePositive} ({(scorePositive / totalTime).toFixed(2)} clicks/second)
+          {scorePositive} ({getScoresPerSecond(scorePositive, totalTime)})
         </td>
         <td>
-          {scoreNegative} ({(scoreNegative / totalTime).toFixed(2)} clicks/second)
+          {scoreNegative} ({getScoresPerSecond(scoreNegative, totalTime)})
         </td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<button on:click={() => dispatch("resetScoreMap")}>Reset</button>
-<button on:click={() => downloadScores()}>Download Scores</button>
-<button on:click={() => scoreImportElement.click()}>Import Scores</button>
-<button>Play Scores</button>
+<div>
+  <button
+    class="youtube-button w-25"
+    on:click={() => dispatch("resetScoreMap")}
+    disabled={$playbackMode || !scoreMapFlat || scoreMapFlat.length <= 0}
+  >
+    Reset
+  </button>
+  <button
+    class="youtube-button w-25"
+    on:click={() => downloadScores()}
+    disabled={$playbackMode || !scoreMapFlat || scoreMapFlat.length <= 0}
+  >
+    Download Scores
+  </button>
+  <button
+    class="youtube-button w-25"
+    on:click={() => scoreImportElement.click()}
+    disabled={$playbackMode || !currentVideoId || !$videoPlayerNode}
+  >
+    Import Scores</button
+  >
+  <button
+    class="youtube-button w-25"
+    on:click={() => togglePlaybackMode()}
+    disabled={!scoreMapFlat || scoreMapFlat.length <= 0}
+  >
+    {$playbackMode ? "Stop Play Back" : "Play Back Scores"}
+  </button>
+</div>
 
 <a
   bind:this={filesDownloadElement}
-  href={fileContent}
+  href={""}
   style="display: none; visibility: hidden;"
   hidden
 >
