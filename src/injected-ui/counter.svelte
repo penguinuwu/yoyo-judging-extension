@@ -3,9 +3,7 @@
   import { createEventDispatcher } from "svelte";
 
   import { StorageKey } from "~contents/constants";
-
-  export let activated: boolean;
-  export let videoPlayerNode: HTMLMediaElement;
+  import { activated, playbackMode, videoPlayerNode } from "~contents/store";
 
   const dispatch = createEventDispatcher<{ judgeClick: number }>();
 
@@ -49,7 +47,7 @@
     "keydown",
     (event) => {
       // do nothing if scoring has not begun
-      if (!activated || !videoPlayerNode) {
+      if (!$activated || $playbackMode || !$videoPlayerNode) {
         return;
       }
 
@@ -78,16 +76,18 @@
 
 <div id="clicker-browser-extension-counter-buttons">
   <button
-    class="youtube-button green"
+    class="youtube-button green w-50 h-4em"
     title={keyPositive}
     on:click={() => dispatch("judgeClick", +1)}
+    disabled={$playbackMode || !$videoPlayerNode}
   >
     +1<br />(Shortcut: "{keyPositive}")
   </button>
   <button
-    class="youtube-button red"
+    class="youtube-button red w-50 h-4em"
     title={keyNegative}
     on:click={() => dispatch("judgeClick", -1)}
+    disabled={$playbackMode || !$videoPlayerNode}
   >
     -1<br />(Shortcut: "{keyNegative}")
   </button>

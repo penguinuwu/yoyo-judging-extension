@@ -28,7 +28,7 @@ const animeOptions = {
     DocumentSelector.VideoBackground
   )
 
-  document.addEventListener(CustomEventType.Click, (event) => {
+  document.addEventListener(CustomEventType.ClickFlash, (event) => {
     console.debug(`click ${event}`)
     if ("detail" in event && typeof event.detail === "string") {
       console.debug(`click ${event.detail}`)

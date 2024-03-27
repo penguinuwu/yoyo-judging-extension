@@ -11,12 +11,12 @@
 
   // watch for key binding changes
   storage.watch({
-    [StorageKey.PositiveKey]: (c) => {
+    [StorageKey.KeyPositive]: (c) => {
       console.debug(`positiveKey: ${c.newValue}`);
       positiveKey = c.newValue;
       validateKeys();
     },
-    [StorageKey.NegativeKey]: (c) => {
+    [StorageKey.KeyNegative]: (c) => {
       console.debug(`negativeKey: ${c.newValue}`);
       negativeKey = c.newValue;
       validateKeys();
@@ -55,8 +55,8 @@
     // save keys if valid
     if (positiveNode.checkValidity() && negativeNode.checkValidity()) {
       console.debug(`store keys "${positiveKey}", "${negativeKey}"`);
-      storage.set(StorageKey.PositiveKey, positiveKey);
-      storage.set(StorageKey.NegativeKey, negativeKey);
+      storage.set(StorageKey.KeyPositive, positiveKey);
+      storage.set(StorageKey.KeyNegative, negativeKey);
     }
   }
 
@@ -65,8 +65,8 @@
    * https://github.com/sveltejs/svelte/issues/5501
    */
   (async function () {
-    positiveKey = await storage.get(StorageKey.PositiveKey);
-    negativeKey = await storage.get(StorageKey.NegativeKey);
+    positiveKey = await storage.get(StorageKey.KeyPositive);
+    negativeKey = await storage.get(StorageKey.KeyNegative);
     console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
 
     // some key is missing from storage, reset to default

@@ -1,4 +1,5 @@
 enum StorageKey {
+  JudgeName = "JUDGE_NAME",
   KeyPositive = "KEY_POSITIVE",
   KeyNegative = "KEY_NEGATIVE"
 }
@@ -13,7 +14,7 @@ enum DocumentSelector {
 
 enum CustomEventType {
   Activate = "clicker-browser-extension:video-change",
-  Click = "clicker-browser-extension:click"
+  ClickFlash = "clicker-browser-extension:click"
 }
 
 export { CustomEventType, DocumentSelector, StorageKey }
