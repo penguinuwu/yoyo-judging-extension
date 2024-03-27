@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Storage } from "@plasmohq/storage";
-  import { StorageKey } from "~contents/constants";
+
+  import { StorageKey } from "~lib/constants";
 
   const storage = new Storage();
 

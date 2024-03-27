@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { CustomEventType, DocumentSelector } from "~contents/constants";
-  import { activated, videoPlayerNode } from "~contents/store";
   import CounterUi from "~injected-ui/counter.svelte";
   import SummaryUi from "~injected-ui/summary.svelte";
   import TimelineUi from "~injected-ui/timeline.svelte";
+  import { CustomEventType, DocumentSelector } from "~lib/constants";
+  import { activated, videoPlayerNode } from "~stores/volatile";
 
   let timelineUi: TimelineUi;
   let currentVideoId = new URLSearchParams(document.location.search).get("v");
