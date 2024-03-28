@@ -1,41 +1,44 @@
 {
-  "name": "yoyo-clicker",
-  "displayName": "YoYo Clicker",
-  "version": "0.0.1",
-  "description": "An extension to add UI to Youtube for judging YoYo performances.",
+  "name": "yoyo-judging-extension",
+  "displayName": "Yo-Yo Judging Helper",
+  "version": "1.0.0",
+  "description": "An extension to assist with judging yo-yo performances on Youtube.",
   "author": "<evan@good-meowning.com>",
+  "homepage_url": "https://github.com/penguinuwu/yoyo-judging-extension/",
   "scripts": {
     "server-c": "plasmo dev --target=chrome-mv3 --verbose",
     "server-f": "plasmo dev --target=firefox-mv2 --verbose",
     "server-fv3": "plasmo dev --target=firefox-mv3 --verbose",
-    "browser-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium' --verbose --devtools",
-    "browser-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop' --verbose --devtools",
-    "browser-fv3": "web-ext --source-dir='./build/firefox-mv3-dev' run --target='firefox-desktop' --verbose --devtools",
-    "build-c": "plasmo build --target=chrome-mv3",
-    "build-f": "plasmo build --target=firefox-mv2",
-    "build-fv3": "plasmo build --target=firefox-mv3",
-    "package": "plasmo package"
+    "browser-c": "web-ext --source-dir='./build/chrome-mv3-dev' run --target='chromium' --verbose",
+    "browser-f": "web-ext --source-dir='./build/firefox-mv2-dev' run --target='firefox-desktop' --verbose",
+    "browser-fv3": "web-ext --source-dir='./build/firefox-mv3-dev' run --target='firefox-desktop' --verbose",
+    "build-c": "plasmo build --target=chrome-mv3 --verbose",
+    "build-f": "plasmo build --target=firefox-mv2 --verbose",
+    "build-fv3": "plasmo build --target=firefox-mv3 --verbose",
+    "package-c": "plasmo package --target=chrome-mv3 --verbose",
+    "package-f": "plasmo package --target=firefox-mv2 --verbose",
+    "package-fv3": "plasmo package --target=firefox-mv3 --verbose"
   },
   "dependencies": {
     "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.9.3",
-    "plasmo": "0.84.2",
+    "plasmo": "0.85.2",
     "svelte": "4.2.12",
     "svelte-preprocess": "5.1.3"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
-    "@types/chrome": "0.0.262",
+    "@ianvs/prettier-plugin-sort-imports": "4.2.1",
+    "@types/chrome": "0.0.263",
     "@types/firefox": "0.0.34",
-    "@types/node": "20.11.24",
+    "@types/node": "20.11.30",
     "prettier": "3.2.5",
-    "typescript": "5.3.3",
+    "typescript": "5.4.3",
     "web-ext": "^7.11.0"
   },
   "manifest": {
     "browser_specific_settings": {
       "gecko": {
-        "id": "your-id@example.com"
+        "id": "addon@example.com"
       }
     },
     "host_permissions": [
