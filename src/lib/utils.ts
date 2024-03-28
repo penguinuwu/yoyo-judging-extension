@@ -20,10 +20,7 @@ function waitForElm(selector: string): Promise<any> {
       }
     })
 
-    observer.observe(document, {
-      childList: true,
-      subtree: true
-    })
+    observer.observe(document, { childList: true, subtree: true })
   })
 }
 

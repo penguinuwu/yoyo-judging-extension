@@ -50,7 +50,7 @@
     // set download default file name
     filesDownloadElement.setAttribute(
       "download",
-      `${currentVideoId}_${Date.now()}.json`
+      `yoyo-scores_${Date.now()}_${currentVideoId}.json`
     );
 
     // generate stringified json
