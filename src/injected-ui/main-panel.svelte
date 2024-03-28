@@ -99,12 +99,8 @@
       }
     }
   })
-    // start observing the document body for mutations
-    .observe(document.body, {
-      attributes: true,
-      childList: true,
-      subtree: true
-    });
+    // start observing the document body for "src" mutations
+    .observe(document.body, { attributeFilter: ["src"], subtree: true });
 
   // set video on first load
   resetVideo();

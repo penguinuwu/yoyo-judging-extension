@@ -24,7 +24,7 @@
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-.youtube-button:hover {
+.youtube-button:hover:enabled {
   filter: brightness(90%);
 }
 .youtube-button:disabled {
