@@ -101,7 +101,7 @@
 }
 .clicker-browser-extension-list > table > tbody tr:hover {
   /* body hover highlight */
-  background-color: whitesmoke;
+  background-color: gainsboro;
 }
 .clicker-browser-extension-list > table .timestamp {
   /* cool timestamp links */

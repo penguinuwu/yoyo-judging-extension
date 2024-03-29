@@ -1,7 +1,7 @@
 {
   "name": "yoyo-judging-extension",
   "displayName": "Yo-Yo Judging Helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An extension to assist with judging yo-yo performances on Youtube.",
   "author": "<evan@good-meowning.com>",
   "homepage_url": "https://github.com/penguinuwu/yoyo-judging-extension/",
@@ -15,9 +15,9 @@
     "build-c": "plasmo build --target=chrome-mv3 --verbose",
     "build-f": "plasmo build --target=firefox-mv2 --verbose",
     "build-fv3": "plasmo build --target=firefox-mv3 --verbose",
-    "package-c": "plasmo package --target=chrome-mv3 --verbose",
-    "package-f": "plasmo package --target=firefox-mv2 --verbose",
-    "package-fv3": "plasmo package --target=firefox-mv3 --verbose"
+    "package-c": "pnpm build-c --zip",
+    "package-f": "pnpm build-f --zip",
+    "package-fv3": "pnpm build-fv3 --zip"
   },
   "dependencies": {
     "@plasmohq/messaging": "^0.6.2",
