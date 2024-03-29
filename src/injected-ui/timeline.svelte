@@ -37,7 +37,7 @@
 
     // sort hashmap (and force re-render)
     for (let blockIndex = 0; blockIndex < $scoreMap.length; blockIndex++) {
-      $scoreMap[blockIndex] = [...$scoreMap[blockIndex].keys()]
+      $scoreMap[blockIndex] = new Float64Array($scoreMap[blockIndex].keys())
         .sort()
         .reduce((score, time) => {
           score.set(time, $scoreMap[blockIndex].get(time));
@@ -97,12 +97,14 @@
     }
 
     // sort hashmap (and force re-render)
-    $scoreMap[blockIndex] = [...$scoreMap[blockIndex].keys()]
+    $scoreMap[blockIndex] = new Float64Array($scoreMap[blockIndex].keys())
       .sort()
       .reduce((score, time) => {
         score.set(time, $scoreMap[blockIndex].get(time));
         return score;
       }, new Map<number, number>());
+
+    console.log($scoreMap[blockIndex]);
   }
 
   /**
