@@ -1,4 +1,17 @@
 /**
+ * write debug logs to the console if not in production
+ *
+ * note: build-time console output removal is not yet implemented
+ * https://github.com/PlasmoHQ/plasmo/issues/542
+ * @param data
+ */
+function consoleDebug(data: any) {
+  if (process.env.NODE_ENV !== "production") {
+    console.debug(data)
+  }
+}
+
+/**
  * wait for element then return querySelector result
  * https://stackoverflow.com/a/61511955
  *
@@ -46,7 +59,7 @@ function getScoresPerSecond(score: number, time: number) {
 function formatTimestamp(timestamp: number, maxTime?: number) {
   // check if broken
   if (!maxTime) {
-    console.debug(`formatTimestamp timestamp:${timestamp} maxTime:${maxTime}`)
+    consoleDebug(`formatTimestamp timestamp:${timestamp} maxTime:${maxTime}`)
     return "0"
   }
 
@@ -102,4 +115,10 @@ function findIndexSorted<T>(array: T[], condition: (element: T) => boolean) {
   return low === high ? low : -1
 }
 
-export { findIndexSorted, formatTimestamp, getScoresPerSecond, waitForElm }
+export {
+  consoleDebug,
+  findIndexSorted,
+  formatTimestamp,
+  getScoresPerSecond,
+  waitForElm
+}

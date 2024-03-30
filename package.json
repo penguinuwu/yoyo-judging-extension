@@ -1,7 +1,7 @@
 {
   "name": "yoyo-judging-extension",
   "displayName": "Yo-Yo Judging Helper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An extension to assist with judging yo-yo performances on Youtube.",
   "author": "<evan@good-meowning.com>",
   "homepage_url": "https://github.com/penguinuwu/yoyo-judging-extension/",
@@ -38,7 +38,7 @@
   "manifest": {
     "browser_specific_settings": {
       "gecko": {
-        "id": "addon@example.com"
+        "id": "{d81f1b43-9740-45ec-bd14-52affdb40aff}"
       }
     },
     "host_permissions": [

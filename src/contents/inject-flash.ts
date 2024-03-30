@@ -1,7 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo"
 
 import { CustomEventType, DocumentSelector, StorageKey } from "~lib/constants"
-import { waitForElm } from "~lib/utils"
+import { consoleDebug, waitForElm } from "~lib/utils"
 
 export const config: PlasmoCSConfig = { matches: ["https://*.youtube.com/*"] }
 
@@ -25,22 +25,22 @@ const animeOptions = {
   )
 
   document.addEventListener(CustomEventType.ClickFlash, (event) => {
-    console.debug(`click ${event}`)
+    consoleDebug(`click ${event}`)
     if ("detail" in event && typeof event.detail === "string") {
-      console.debug(`click ${event.detail}`)
+      consoleDebug(`click ${event.detail}`)
       switch (event.detail) {
         case StorageKey.KeyPositive:
-          console.debug(`click positive`)
+          consoleDebug(`click positive`)
           videoBackgroundElement.animate(keyframesPositive, animeOptions)
           break
 
         case StorageKey.KeyNegative:
-          console.debug(`click negative`)
+          consoleDebug(`click negative`)
           videoBackgroundElement.animate(keyframesNegative, animeOptions)
           break
 
         default:
-          console.debug(`click event broke ${JSON.stringify(event)}`)
+          consoleDebug(`click event broke ${JSON.stringify(event)}`)
           break
       }
     }

@@ -3,7 +3,7 @@
 
   import { CustomEventType, StorageKey } from "~lib/constants";
   import type { ScoreJson } from "~lib/types";
-  import { getScoresPerSecond } from "~lib/utils";
+  import { consoleDebug, getScoresPerSecond } from "~lib/utils";
   import {
     activated,
     playbackMode,
@@ -40,7 +40,7 @@
   // download scores
   let filesDownloadElement: HTMLAnchorElement;
   function downloadScores() {
-    console.debug(`download scores ${currentVideoId}`);
+    consoleDebug(`download scores ${currentVideoId}`);
 
     // missing data
     if (!currentVideoId || !scoreMapFlat || scoreMapFlat.length <= 0) {
@@ -86,8 +86,8 @@
 
         // read json
         const scoreJson = JSON.parse(scoreText) as ScoreJson;
-        console.debug(`import scores`);
-        console.debug(scoreJson);
+        consoleDebug(`import scores`);
+        consoleDebug(scoreJson);
 
         // reset reference
         scoreFiles = undefined;
@@ -113,7 +113,7 @@
             typeof pair[0] !== "number" ||
             typeof pair[1] !== "number"
           ) {
-            console.debug(pair);
+            consoleDebug(pair);
             window.alert("Error: incorrect scores format");
             return;
           }
@@ -126,7 +126,7 @@
         dispatch("importScoreMap", scoreJson);
       })
       .catch((error) => {
-        console.debug(error);
+        consoleDebug(error);
         scoreFiles = undefined;
         window.alert("Error: cannot understand scores!");
       });
@@ -140,7 +140,7 @@
   async function togglePlaybackMode() {
     // disable playback mode
     if ($playbackMode) {
-      console.debug("playback mode disabled");
+      consoleDebug("playback mode disabled");
 
       playbackMode.set(false);
 
@@ -166,12 +166,12 @@
       ...scoreMapFlat.flatMap(([time, _score]) => time)
     );
     if (!Number.isFinite(firstClickTime)) {
-      console.debug(`first click time not finite ${firstClickTime}`);
+      consoleDebug(`first click time not finite ${firstClickTime}`);
       return;
     }
 
     // enable playback
-    console.debug("playback mode enabled");
+    consoleDebug("playback mode enabled");
     playbackMode.set(true);
 
     // set video to 5 seconds before first click
@@ -186,7 +186,7 @@
     intervalId = setInterval(() => {
       // video changed or scoring stopped
       if (!activated || !videoPlayerNode || !scoreMapFlat) {
-        console.debug(`playback: video changed or scoring stopped`);
+        consoleDebug(`playback: video changed or scoring stopped`);
         clearInterval(intervalId);
         return;
       }
@@ -195,7 +195,7 @@
 
       // video paused
       if (previousTime === currentTime) {
-        console.debug(`playback: video paused at ${currentTime}`);
+        consoleDebug(`playback: video paused at ${currentTime}`);
         return;
       }
 
@@ -204,7 +204,7 @@
         currentTime < previousTime ||
         previousTime + intervalDelayThreshold < currentTime
       ) {
-        console.debug(`playback: reset ${previousTime} -> ${currentTime}`);
+        consoleDebug(`playback: reset ${previousTime} -> ${currentTime}`);
         previousTime = currentTime;
         scoreMapIndex = undefined;
         return;
@@ -212,7 +212,7 @@
 
       // find next click index
       if (scoreMapIndex === undefined) {
-        console.debug(
+        consoleDebug(
           `playback: scoreMapIndex undefined (${previousTime}, ${currentTime}]`
         );
 

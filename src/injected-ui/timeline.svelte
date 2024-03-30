@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CustomEventType, StorageKey } from "~lib/constants";
   import type { ScoreJson } from "~lib/types";
-  import { formatTimestamp } from "~lib/utils";
+  import { consoleDebug, formatTimestamp } from "~lib/utils";
   import {
     activated,
     playbackMode,
@@ -27,7 +27,7 @@
       // calculate block index
       const timePercentage = (clickTime / videoDuration) * 100;
       const blockIndex = Math.floor(timePercentage / $scoreMap.length);
-      console.debug(
+      consoleDebug(
         `timePercentage: ${timePercentage}, blockIndex: ${blockIndex}`
       );
 
@@ -61,12 +61,12 @@
    */
   export function parseClick(click: number) {
     if (!$activated || $playbackMode || !$videoPlayerNode || !videoDuration) {
-      console.debug(`video not ready to click!!`);
+      consoleDebug(`video not ready to click!!`);
       return;
     }
 
     let clickTime = $videoPlayerNode.currentTime;
-    console.debug(`parseClick: ${click} at ${clickTime}`);
+    consoleDebug(`parseClick: ${click} at ${clickTime}`);
 
     document.dispatchEvent(
       new CustomEvent(CustomEventType.ClickFlash, {
@@ -82,7 +82,7 @@
     // calculate block index
     const timePercentage = (clickTime / videoDuration) * 100;
     const blockIndex = Math.floor(timePercentage / $scoreMap.length);
-    console.debug(
+    consoleDebug(
       `timePercentage: ${timePercentage}, blockIndex: ${blockIndex}`
     );
 
@@ -103,8 +103,6 @@
         score.set(time, $scoreMap[blockIndex].get(time));
         return score;
       }, new Map<number, number>());
-
-    console.log($scoreMap[blockIndex]);
   }
 
   /**
@@ -114,11 +112,11 @@
    */
   function deleteClick(clickTime: number, click: number) {
     if (!$activated || $playbackMode || !$videoPlayerNode) {
-      console.debug(`video not ready to unclick!!`);
+      consoleDebug(`video not ready to unclick!!`);
       return;
     }
 
-    console.debug(`deleting click ${click} at ${clickTime}`);
+    consoleDebug(`deleting click ${click} at ${clickTime}`);
 
     // calculate score map index to locate the click bucket
     const timePercentage = (clickTime / videoDuration) * 100;

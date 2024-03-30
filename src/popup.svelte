@@ -2,6 +2,7 @@
   import { Storage } from "@plasmohq/storage";
 
   import { StorageKey } from "~lib/constants";
+  import { consoleDebug } from "~lib/utils";
 
   const storage = new Storage();
 
@@ -13,12 +14,12 @@
   // watch for key binding changes
   storage.watch({
     [StorageKey.KeyPositive]: (c) => {
-      console.debug(`positiveKey: ${c.newValue}`);
+      consoleDebug(`positiveKey: ${c.newValue}`);
       positiveKey = c.newValue;
       validateKeys();
     },
     [StorageKey.KeyNegative]: (c) => {
-      console.debug(`negativeKey: ${c.newValue}`);
+      consoleDebug(`negativeKey: ${c.newValue}`);
       negativeKey = c.newValue;
       validateKeys();
     }
@@ -30,7 +31,7 @@
   function validateKeys() {
     // check if keys are not unique
     if (positiveKey === negativeKey) {
-      console.debug(`duplicate key binds "${positiveKey}", "${negativeKey}"`);
+      consoleDebug(`duplicate key binds "${positiveKey}", "${negativeKey}"`);
       negativeNode.setCustomValidity("Invalid duplicate key bind!");
       positiveNode.setCustomValidity("Invalid duplicate key bind!");
     } else {
@@ -41,7 +42,7 @@
       positiveNode.setCustomValidity(
         /^.{1}$/.test(positiveKey) ? "" : "Invalid key bind!"
       );
-      console.debug(
+      consoleDebug(
         `validity "${positiveNode.checkValidity()}", "${negativeNode.checkValidity()}"`
       );
     }
@@ -55,7 +56,7 @@
 
     // save keys if valid
     if (positiveNode.checkValidity() && negativeNode.checkValidity()) {
-      console.debug(`store keys "${positiveKey}", "${negativeKey}"`);
+      consoleDebug(`store keys "${positiveKey}", "${negativeKey}"`);
       storage.set(StorageKey.KeyPositive, positiveKey);
       storage.set(StorageKey.KeyNegative, negativeKey);
     }
@@ -68,11 +69,11 @@
   (async function () {
     positiveKey = await storage.get(StorageKey.KeyPositive);
     negativeKey = await storage.get(StorageKey.KeyNegative);
-    console.debug(`init get keys "${positiveKey}", "${negativeKey}"`);
+    consoleDebug(`init get keys "${positiveKey}", "${negativeKey}"`);
 
     // some key is missing from storage, reset to default
     if (!positiveKey || !negativeKey) {
-      console.debug("reset keys");
+      consoleDebug("reset keys");
       positiveKey = "1";
       negativeKey = "0";
       updateKeys();

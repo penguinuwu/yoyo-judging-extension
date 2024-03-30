@@ -3,6 +3,7 @@
   import { createEventDispatcher } from "svelte";
 
   import { StorageKey } from "~lib/constants";
+  import { consoleDebug } from "~lib/utils";
   import { activated, playbackMode, videoPlayerNode } from "~stores/volatile";
 
   const dispatch = createEventDispatcher<{ judgeClick: number }>();
@@ -18,11 +19,11 @@
   (async function () {
     keyPositive = await storage.get(StorageKey.KeyPositive);
     keyNegative = await storage.get(StorageKey.KeyNegative);
-    console.debug(`init get keys "${keyPositive}", "${keyNegative}"`);
+    consoleDebug(`init get keys "${keyPositive}", "${keyNegative}"`);
 
     // some key is missing from storage, reset to default
     if (!keyPositive || !keyNegative) {
-      console.debug("reset keys");
+      consoleDebug("reset keys");
       keyPositive = "1";
       keyNegative = "0";
       storage.set(StorageKey.KeyPositive, keyPositive);
@@ -33,11 +34,11 @@
   // watch for key binding changes
   storage.watch({
     [StorageKey.KeyPositive]: (c) => {
-      console.debug(`keyPositive: ${c.newValue}`);
+      consoleDebug(`keyPositive: ${c.newValue}`);
       keyPositive = c.newValue;
     },
     [StorageKey.KeyNegative]: (c) => {
-      console.debug(`keyNegative: ${c.newValue}`);
+      consoleDebug(`keyNegative: ${c.newValue}`);
       keyNegative = c.newValue;
     }
   });
@@ -59,12 +60,12 @@
 
         // ignore keys held down
         if (event.repeat) {
-          console.debug(`capture key ${event.key}`);
+          consoleDebug(`capture key ${event.key}`);
           return;
         }
 
         const click = event.key === keyPositive ? +1 : -1;
-        console.debug(`click ${click}`);
+        consoleDebug(`click ${click}`);
         dispatch("judgeClick", click);
       }
     },

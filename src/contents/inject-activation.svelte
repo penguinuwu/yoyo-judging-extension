@@ -14,12 +14,13 @@
 
 <script lang="ts">
   import { CustomEventType } from "~lib/constants";
+  import { consoleDebug } from "~lib/utils";
 
   let activated = false;
 
   // toggle activation boolean
   function toggle() {
-    console.debug(`clicking button ${activated} -> ${!activated}`);
+    consoleDebug(`clicking button ${activated} -> ${!activated}`);
     // set it to reduce visual lag
     activated != activated;
     document.dispatchEvent(
@@ -29,13 +30,13 @@
 
   // listen for button changes
   document.addEventListener(CustomEventType.Activate, (event) => {
-    console.debug(`button activate ${event}`);
+    consoleDebug(`button activate ${event}`);
     // typescript thing
     if ("detail" in event && typeof event.detail === "boolean") {
-      console.debug(`button activate ${activated} -> ${event.detail}`);
+      consoleDebug(`button activate ${activated} -> ${event.detail}`);
       activated = event.detail;
     } else {
-      console.debug(`button activate event broke ${JSON.stringify(event)}`);
+      consoleDebug(`button activate event broke ${JSON.stringify(event)}`);
     }
   });
 </script>
