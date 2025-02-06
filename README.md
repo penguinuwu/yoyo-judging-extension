@@ -1,5 +1,10 @@
 # Yo-Yo Judging Helper Browser Extension
 
+## Install
+
+- Chrome: [Chrome Web Store](https://chromewebstore.google.com/detail/yo-yo-judging-helper/ieinlpocpjpgbpbhlhpemkeemfnoklfl)
+- Firefox: [Firefox Browser Add-ons](https://addons.mozilla.org/firefox/addon/yo-yo-judging-helper/)
+
 ## How to setup
 
 1. Install `pnpm`
